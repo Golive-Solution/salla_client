@@ -1,0 +1,309 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2021-10-01 02:30:06.675697",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "scan_order_barcode",
+  "salla_order_no",
+  "pos_invoice",
+  "customer",
+  "ready_to_complete",
+  "preparing_date",
+  "order_completed",
+  "column_break_4",
+  "customer_first_name",
+  "customer_last_name",
+  "phone_number",
+  "order_status",
+  "order_date",
+  "section_break_17",
+  "print_shipment",
+  "column_break_17",
+  "print_pos_invoice",
+  "section_break_14",
+  "scan_item_barcode",
+  "item",
+  "shipment_detials",
+  "total_tax",
+  "salla_payment_method",
+  "cod_cost",
+  "salla_shipping_method",
+  "shipping_cost",
+  "grand_total",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "default": "SOF-.YYYY.-",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "options": "SOF-.YYYY.-",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "scan_order_barcode",
+   "fieldtype": "Data",
+   "label": "Scan Order Barcode",
+   "print_hide": 1,
+   "read_only_depends_on": "item"
+  },
+  {
+   "fieldname": "salla_order_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Order No",
+   "options": "Salla Order",
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "pos_invoice",
+   "fieldtype": "Link",
+   "label": "Pos Invoice",
+   "options": "POS Invoice",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "salla_order_no.customer",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fetch_from": "salla_order_no.ready_to_complete",
+   "fieldname": "ready_to_complete",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Ready To Complete",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "depends_on": "salla_order_no",
+   "fieldname": "preparing_date",
+   "fieldtype": "Date",
+   "label": "Preparing Date",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "salla_order_no",
+   "fieldname": "order_completed",
+   "fieldtype": "Check",
+   "label": "Order Completed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "salla_order_no.customer_first_name",
+   "fieldname": "customer_first_name",
+   "fieldtype": "Data",
+   "label": "Customer First Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "salla_order_no.customer_last_name",
+   "fieldname": "customer_last_name",
+   "fieldtype": "Data",
+   "label": "Customer Last Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "salla_order_no.phone_number",
+   "fieldname": "phone_number",
+   "fieldtype": "Data",
+   "label": "Phone Number",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fetch_from": "salla_order_no.order_status",
+   "fetch_if_empty": 1,
+   "fieldname": "order_status",
+   "fieldtype": "Data",
+   "label": "Order Status",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "salla_order_no.date",
+   "fieldname": "order_date",
+   "fieldtype": "Date",
+   "label": "Order Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_17",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "test ",
+   "depends_on": "shipment_detials",
+   "fieldname": "print_shipment",
+   "fieldtype": "Button",
+   "label": "Print Shipment"
+  },
+  {
+   "fieldname": "column_break_17",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "pos_invoice",
+   "fieldname": "print_pos_invoice",
+   "fieldtype": "Button",
+   "label": "Print POS Invoice"
+  },
+  {
+   "fieldname": "section_break_14",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "item",
+   "fieldname": "scan_item_barcode",
+   "fieldtype": "Data",
+   "label": "Scan Item Barcode"
+  },
+  {
+   "depends_on": "item",
+   "fieldname": "item",
+   "fieldtype": "Table",
+   "label": "Item",
+   "options": "Salla Order Item Fulfilment"
+  },
+  {
+   "fieldname": "shipment_detials",
+   "fieldtype": "Table",
+   "label": "Shipment Detials",
+   "options": "Salla Order Shipment Fulfilment",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "salla_order_no.total_tax",
+   "fieldname": "total_tax",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "Tax",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "salla_order_no.salla_payment_method",
+   "fieldname": "salla_payment_method",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Salla Payment Method",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "salla_order_no.cod_cost",
+   "fieldname": "cod_cost",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "COD Cost",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "salla_order_no.salla_shipping_method",
+   "fieldname": "salla_shipping_method",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Salla Shipping Method",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "salla_order_no.shipping_cost",
+   "fieldname": "shipping_cost",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "Shipping Cost",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "salla_order_no.grand_total",
+   "fieldname": "grand_total",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Salla Order Fulfilment",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-02-11 15:13:57.796083",
+ "modified_by": "Administrator",
+ "module": "Salla Client",
+ "name": "Salla Order Fulfilment",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Administrator",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Administrator",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "salla_order_no",
+ "track_changes": 1
+}

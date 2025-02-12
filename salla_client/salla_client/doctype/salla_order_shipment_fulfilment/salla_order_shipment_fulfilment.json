@@ -1,0 +1,44 @@
+{
+ "actions": [],
+ "creation": "2021-10-01 02:28:52.386217",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "tracking_number",
+  "tracking_link",
+  "lable_url"
+ ],
+ "fields": [
+  {
+   "fieldname": "tracking_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Tracking Number"
+  },
+  {
+   "fieldname": "tracking_link",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "label": "Tracking Link"
+  },
+  {
+   "fieldname": "lable_url",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "label": "Label URL"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-02-11 15:28:39.452922",
+ "modified_by": "Administrator",
+ "module": "Salla Client",
+ "name": "Salla Order Shipment Fulfilment",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

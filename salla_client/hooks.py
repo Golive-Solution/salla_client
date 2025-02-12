@@ -28,7 +28,7 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {"Item": "public/js/item.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -122,34 +122,45 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+    "Item": {
+        "before_save": "salla_client.events.stock.item.before_save",
+        "on_update": "salla_client.events.stock.item.on_update",
+    },
+    "Item Price": {
+        "before_save": "salla_client.events.stock.item_price.before_save",
+    },
+}
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"salla_client.tasks.all"
-# 	],
-# 	"daily": [
-# 		"salla_client.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"salla_client.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"salla_client.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"salla_client.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+    "cron": {
+        "* * * * *": [
+            "salla_client.tasks.received_events.received_events_salla_order",
+        ],
+        "*/5 * * * *": [
+            "salla_client.tasks.daily.update_request.update_merchants_request"
+        ],
+    },
+    # 	"all": [
+    # 		"salla_client.tasks.all"
+    # 	],
+    "daily": [
+        "salla_client.tasks.daily.refresh_token.refresh_token_every_day",
+        "salla_client.tasks.daily.update_request.update_to_salla_monitor",
+    ],
+    # 	"hourly": [
+    # 		"salla_client.tasks.hourly"
+    # 	],
+    # 	"weekly": [
+    # 		"salla_client.tasks.weekly"
+    # 	],
+    # 	"monthly": [
+    # 		"salla_client.tasks.monthly"
+    # 	],
+}
 
 # Testing
 # -------
@@ -227,3 +238,25 @@ app_license = "mit"
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+fixtures = [
+    {
+        "dt": "Custom Field",
+        "filters": {
+            "name": [
+                "in",
+                [
+                    "Item-custom_salla",
+                    "Item-custom_salla_item",
+                    "Item-custom_is_bundle",
+                    "Item-custom_concatenated_barcode",
+                    "Item-custom_is_salla_item",
+                    "Item-custom_product_image",
+                    "Item-custom_product_type",
+                    "Item-custom_send_item_to_salla",
+                    "Item-custom_salla_variant_id",
+                    "Item Barcode-custom_is_salla_barcode",
+                ],
+            ]
+        },
+    }
+]

@@ -1,0 +1,145 @@
+{
+ "actions": [],
+ "autoname": "field:salla_item_id",
+ "creation": "2021-05-20 04:02:40.597916",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "barcode",
+  "item_code",
+  "item_name",
+  "qty",
+  "rate",
+  "discount_amount",
+  "salla_item_name",
+  "serial_no",
+  "order_status",
+  "workflow_state",
+  "is_document_submitted",
+  "is_bundle",
+  "merchant",
+  "salla_item_id"
+ ],
+ "fields": [
+  {
+   "fieldname": "barcode",
+   "fieldtype": "Data",
+   "ignore_user_permissions": 1,
+   "in_list_view": 1,
+   "label": "Barcode",
+   "reqd": 1
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "ignore_user_permissions": 1,
+   "in_list_view": 1,
+   "label": "Item Code",
+   "options": "Item"
+  },
+  {
+   "allow_on_submit": 1,
+   "fetch_from": "item_code.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "ignore_user_permissions": 1,
+   "label": "Item Name",
+   "print_hide": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "ignore_user_permissions": 1,
+   "in_list_view": 1,
+   "label": "Qty"
+  },
+  {
+   "columns": 1,
+   "fieldname": "rate",
+   "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
+   "in_list_view": 1,
+   "label": "Rate",
+   "options": "currency"
+  },
+  {
+   "columns": 1,
+   "fieldname": "discount_amount",
+   "fieldtype": "Currency",
+   "ignore_user_permissions": 1,
+   "in_list_view": 1,
+   "label": "Discount",
+   "options": "currency"
+  },
+  {
+   "fieldname": "salla_item_name",
+   "fieldtype": "Text Editor",
+   "ignore_user_permissions": 1,
+   "in_list_view": 1,
+   "label": "Salla Item Name"
+  },
+  {
+   "fieldname": "serial_no",
+   "fieldtype": "Small Text",
+   "ignore_user_permissions": 1,
+   "in_list_view": 1,
+   "label": "Serial No"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "order_status",
+   "fieldtype": "Data",
+   "ignore_user_permissions": 1,
+   "label": "Order Status"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "workflow_state",
+   "fieldtype": "Data",
+   "ignore_user_permissions": 1,
+   "label": "Workflow State"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "is_document_submitted",
+   "fieldtype": "Check",
+   "ignore_user_permissions": 1,
+   "label": "Is Document Submitted"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_bundle",
+   "fieldtype": "Check",
+   "ignore_user_permissions": 1,
+   "label": "Is Bundle"
+  },
+  {
+   "fieldname": "merchant",
+   "fieldtype": "Data",
+   "label": "merchant"
+  },
+  {
+   "fieldname": "salla_item_id",
+   "fieldtype": "Data",
+   "label": "Salla Item ID",
+   "unique": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-02-11 15:13:52.104500",
+ "modified_by": "Administrator",
+ "module": "Salla Client",
+ "name": "Salla Order Item",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

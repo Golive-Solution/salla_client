@@ -1,0 +1,54 @@
+{
+ "actions": [],
+ "autoname": "field:salla_payment_method",
+ "creation": "2021-10-01 02:29:18.110746",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "salla_payment_method",
+  "next_payment_method"
+ ],
+ "fields": [
+  {
+   "fieldname": "salla_payment_method",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Salla Payment Method",
+   "unique": 1
+  },
+  {
+   "fieldname": "next_payment_method",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Next Payment Method",
+   "options": "Mode of Payment"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-02-11 15:13:56.993953",
+ "modified_by": "Administrator",
+ "module": "Salla Client",
+ "name": "Salla Payment Method Mapping",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
