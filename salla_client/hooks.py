@@ -136,21 +136,21 @@ doc_events = {
 # ---------------
 
 scheduler_events = {
-    "cron": {
-        "* * * * *": [
-            "salla_client.tasks.received_events.received_events_salla_order",
-        ],
-        "*/5 * * * *": [
-            "salla_client.tasks.daily.update_request.update_merchants_request"
-        ],
-    },
+    # "cron": {
+    #     "* * * * *": [
+    #         "salla_client.tasks.received_events.received_events_salla_order",
+    #     ],
+    #     "*/5 * * * *": [
+    #         "salla_client.tasks.daily.update_request.update_merchants_request"
+    #     ],
+    # },
     # 	"all": [
     # 		"salla_client.tasks.all"
     # 	],
-    "daily": [
-        "salla_client.tasks.daily.refresh_token.refresh_token_every_day",
-        "salla_client.tasks.daily.update_request.update_to_salla_monitor",
-    ],
+    # "daily": [
+    #     "salla_client.tasks.daily.refresh_token.refresh_token_every_day",
+    #     "salla_client.tasks.daily.update_request.update_to_salla_monitor",
+    # ],
     # 	"hourly": [
     # 		"salla_client.tasks.hourly"
     # 	],
