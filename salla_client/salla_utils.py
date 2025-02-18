@@ -7,7 +7,7 @@ from erpnext.stock.doctype.quick_stock_balance.quick_stock_balance import (
 import frappe
 import requests
 
-from frappe.utils.data import get_url, getdate, now, now_datetime, today
+from frappe.utils.data import getdate, now_datetime, today
 
 
 salla_base_url = "https://api.salla.dev/admin/v2"
@@ -23,70 +23,6 @@ def get_default_headers(merchant_settings):
     return headers
 
 
-def subscribe_event(doc_name):
-    doc = frappe.get_doc("Salla Store Webhook", doc_name)
-    merchant_settings = frappe.get_doc("Salla Settings", doc.merchant)
-    headers = get_default_headers(merchant_settings)
-    url = get_url() + f"/{receive_event_api_path}"
-    data = {"event": doc.event, "url": url, "name": doc.name}
-    if doc.version:
-        data.update({"version": doc.version})
-    if doc.rule:
-        data.update({"rule": doc.rule})
-
-    body_headers = []
-    salla_user = frappe.get_doc("User", merchant_settings.salla_user)
-
-    body_headers.append(
-        {
-            "key": "authorization",
-            "value": f"token {salla_user.api_key}:{salla_user.get_password('api_secret')}",
-        }
-    )
-    for header in doc.headers:
-        body_headers.append({f"{header.key}": f" {header.value}"})
-
-    data.update({"headers": body_headers})
-    print(f"data : {data}")
-    response = requests.post(
-        f"{salla_base_url}/webhooks/subscribe", headers=headers, json=data
-    ).json()
-    response_message = frappe._dict(response)
-
-    if response_message.status == 200:
-        doc.id = response_message.data["id"]
-        doc.status = "Active"
-        doc.save()
-    else:
-        comment = f"Failed to subscribe for event {doc.event} ,Status Response Cod:{response_message.status},Error message : {response_message.error['message']}"
-        doc.add_comment(comment_type="Comment", text=comment)
-        doc.status = "Failed"
-        doc.save()
-
-
-def unsubscribe_event(doc_name):
-    doc = frappe.get_doc("Salla Store Webhook", doc_name)
-    merchant_settings = frappe.get_doc("Salla Settings", doc.merchant)
-    headers = get_default_headers(merchant_settings)
-    url = get_url() + f"/{receive_event_api_path}"
-    # url = f"https://golive14-stg.frappe.cloud/{doc.url}"#get_url()
-    data = {"id": doc.id, "url": url}
-    response = requests.delete(
-        f"{salla_base_url}/webhooks/unsubscribe", headers=headers, json=data
-    ).json()
-    response_message = frappe._dict(response)
-    print(f"response_message : {response_message}")
-    if response_message.status == 202 or response_message.status == 200:
-        doc.status = "Inactive"
-        doc.save()
-    else:
-        comment = f"Failed to unsubscribe for event {doc.event} ,Status Response Cod:{response_message.status},Error message : {response_message.error['message']}"
-        doc.add_comment(comment_type="Comment", text=comment)
-        doc.status = "Failed"
-        doc.save()
-
-
-################################
 @frappe.whitelist()
 def update_product_balance_warehouse(merchant_name=None, item=None):
     filters = {}
@@ -163,7 +99,6 @@ def update_product_balance_warehouse(merchant_name=None, item=None):
             time.sleep(salla_job_setting.product_balance_sending_interval)
 
 
-#################################
 def bulk_update_merchant_item_info(merchant_item_info_names):
     condition = ",".join([f"'{info_name}'" for info_name in merchant_item_info_names])
     today = datetime.datetime.today().date()
@@ -216,45 +151,6 @@ def convert_item_to_salla_item(item):
     }
 
 
-def refresh_token(merchant_setting):
-    current_datetime = now_datetime()
-    doc = frappe.get_doc("Salla Settings", merchant_setting)
-    salla_sync_token = frappe.get_doc({"doctype": "Salla Sync Token Log"})
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Accept": "application/json",
-    }
-    data = {
-        "client_id": doc.get_password("client_id"),
-        "client_secret": doc.get_password("client_secret"),
-        "refresh_token": doc.refresh_token,
-        "grant_type": "refresh_token",
-    }
-    salla_sync_token.merchant = doc.merchant
-    salla_sync_token.sending_time = now()
-    salla_sync_token.message = str(data)
-    print(f"data : {data}")
-    response = requests.post(
-        "https://accounts.salla.sa/oauth2/token", headers=headers, data=data
-    )
-    print(f"response is {response}")
-    response_message = frappe._dict(response.json())
-    salla_sync_token.response = response_message
-    salla_sync_token.save()
-    if response.status_code == 200:
-        doc.access_token = response_message["access_token"]
-        doc.refresh_token = response_message["refresh_token"]
-        doc.expires_on = current_datetime + datetime.timedelta(
-            seconds=response_message["expires_in"]
-        )
-        doc.save()
-    else:
-        print(response_message)
-        comment = f"Failed to Refresh Token For The Body {data}, Error Description : {response_message['error_description']} With Status Code : {response.status_code}"
-        doc.add_comment(comment_type="Comment", text=comment)
-        doc.save()
-
-
 @frappe.whitelist()
 def update_price_using_barcode(item, price, merchant_name):
     doc = frappe.get_doc("Item", item)
@@ -305,71 +201,6 @@ def update_salla_price(item_price):
                         item_price.price_list_rate,
                         salla_setting.name,
                     )
-
-
-def add_months(dt, months):
-    # Calculate new month and year
-    new_month = dt.month + months
-    new_year = dt.year + (new_month - 1) // 12
-    new_month = (new_month - 1) % 12 + 1
-
-    # Handle days
-    day = dt.day
-    # Check if the new month has fewer days
-    if day > 28:
-        # Handle end-of-month cases
-        while True:
-            try:
-                new_dt = datetime(
-                    new_year, new_month, day, dt.hour, dt.minute, dt.second
-                )
-                break
-            except ValueError:
-                day -= 1
-    else:
-        new_dt = datetime(new_year, new_month, day, dt.hour, dt.minute, dt.second)
-
-    return new_dt
-
-
-def update_salla_balance(**args):
-    try:
-        args_dict = frappe._dict(args)
-        merchant = frappe.get_doc("Salla Merchant", args_dict.merchant)
-
-        if len(merchant.salla_requests):
-            last_row = merchant.salla_requests[-1]
-            last_row.plan_type = args_dict.get("plan_type", last_row.plan_type)
-            last_row.number_of_requests = args_dict.get(
-                "number_of_requests", last_row.number_of_requests
-            )
-            last_row.created_on = args_dict.get("created_on", last_row.created_on)
-            last_row.valid_from = args_dict.get("valid_from", last_row.valid_from)
-            last_row.valid_to = args_dict.get("valid_to", last_row.valid_to)
-            last_row.consumed_requests = args_dict.get(
-                "consumed_requests", last_row.consumed_requests
-            )
-            last_row.remaining_requests = args_dict.get(
-                "remaining_requests", last_row.remaining_requests
-            )
-            merchant.save()
-        else:
-            new_request = {
-                "plan_type": args_dict.get("plan_type"),
-                "number_of_requests": args_dict.get("number_of_requests"),
-                "created_on": args_dict.get("created_on"),
-                "valid_from": args_dict.get("valid_from"),
-                "valid_to": args_dict.get("valid_to"),
-                "consumed_requests": args_dict.get("consumed_requests", 0),
-                "remaining_requests": args_dict.get(
-                    "remaining_requests", args_dict.get("number_of_requests", 0)
-                ),
-            }
-            merchant.append("salla_requests", new_request)
-            merchant.save()
-            return set_response_and_message(200, "Success")
-    except Exception as e:
-        return set_response_and_message(400, e)
 
 
 def create_or_update_salla_item(doc, merchant_name):
@@ -559,58 +390,6 @@ def set_response_and_message(statusCode, message):
     return message
 
 
-def acknowlege_merchant_request_details():
-    merchant_settings = frappe.get_doc("Salla Store App Authorize")
-    if (
-        merchant_settings.api_key
-        and merchant_settings.api_secret
-        and merchant_settings.api_url
-    ):
-        try:
-            merchants = frappe.get_list("Salla Merchant", pluck="name")
-            headers = {
-                "Authorization": f"token {merchant_settings.api_key}:{merchant_settings.get_password('api_secret')}"
-            }
-
-            for merchant_row in merchants:
-                merchant = frappe.get_doc("Salla Merchant", merchant_row)
-                if len(merchant.salla_requests):
-                    last_row = merchant.salla_requests[-1]
-                    data = {
-                        "merchant": merchant.name,
-                        "plan_type": last_row.plan_type,
-                        "number_of_requests": last_row.number_of_requests,
-                        "created_on": (last_row.created_on).strftime("%Y-%m-%d"),
-                        "valid_from": (last_row.valid_from).strftime("%Y-%m-%d"),
-                        "valid_to": (last_row.valid_to).strftime("%Y-%m-%d"),
-                        "consumed_requests": last_row.consumed_requests,
-                        "remaining_requests": last_row.remaining_requests,
-                    }
-                    requests.post(
-                        f"{merchant_settings.api_url}/api/method/salla_store_app_monitor.salla_api.update_merchant_requests",
-                        headers=headers,
-                        json=data,
-                    ).json()
-                    send_to_salla(merchant.name, last_row.remaining_requests)
-        except Exception as e:
-            frappe.utils.logger.set_log_level("DEBUG")
-            frappe.logger("test", allow_site=1).info(f"Error is : {e}")
-
-
-def send_to_salla(merchant, balance):
-    merchant_settings = frappe.get_doc("Salla Settings", merchant)
-
-    headers = get_default_headers(merchant_settings)
-    data = {"balance": balance}
-    try:
-        requests.post(
-            "https://api.salla.dev/admin/v2/apps/balance", headers=headers, json=data
-        )
-    except Exception as e:
-        frappe.utils.logger.set_log_level("DEBUG")
-        frappe.logger("salla_api", allow_site=1).info(f"Error is : {e}")
-
-
 def update_variant_price(item_variant, price, merchant_name):
     merchant = frappe.get_doc("Salla Settings", merchant_name)
     headers = {
@@ -623,7 +402,6 @@ def update_variant_price(item_variant, price, merchant_name):
     )
 
 
-#######################
 @frappe.whitelist()
 def update_variant_qty(item_variant, merchant_name, salla_item_info_name):
     item = frappe.get_doc("Item", item_variant)
@@ -658,6 +436,3 @@ def update_variant_qty(item_variant, merchant_name, salla_item_info_name):
     update_product_variant_qty(
         headers, salla_base_url, item.custom_salla_variant_id, data
     )
-
-
-###################################
