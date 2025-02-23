@@ -10,6 +10,15 @@ import requests
 from frappe.utils.data import getdate, now_datetime, today
 
 
+def get_api_settings():
+    settings = frappe.get_single("Salla Client Settings")
+    api_headers = {
+        "Authorization": f"token {settings.api_key}:{settings.api_secret}",
+        "Content-Type": "application/json",
+    }
+    return {"url": settings.server_url, "headers": api_headers, "site": settings.site}
+
+
 salla_base_url = "https://api.salla.dev/admin/v2"
 receive_event_api_path = "api/method/salla_client.salla_api.receive_event"
 update_bulk_url = "/products/quantities/bulkSkus"
@@ -129,78 +138,6 @@ def update_bulk_quantite(skus, merchant):
     except Exception as e:
         sync_job_log.response = str(e)
     sync_job_log.save()
-
-
-def convert_item_to_salla_item(item):
-    return {
-        "name": "T-Shirt Blue",
-        "price": 96.33,
-        "status": "out",
-        "product_type": "product",
-        "quantity": 4,
-        "sku": "23-4324432",
-        "images": [
-            {
-                "original": "https://salla-dev.s3.eu-central-1.amazonaws.com/nWzD/2E0Z2t6Q8FG3ca620rwqcTY2CC2j2PAGrqqeDROY.jpg",
-                "thumbnail": "https://salla-dev.s3.eu-central-1.amazonaws.com/nWzD/2E0Z2t6Q8FG3ca620rwqcTY2CC2j2PAGrqqeDROY.jpg",
-                "alt": "image",
-                "default": 1,
-            }
-        ],
-        "values": [{"name": "كبير", "price": 120, "quantity": 10}],
-    }
-
-
-@frappe.whitelist()
-def update_price_using_barcode(item, price, merchant_name):
-    doc = frappe.get_doc("Item", item)
-    merchant = frappe.get_doc("Salla Settings", merchant_name)
-    barcode = frappe.get_doc(
-        "Item Barcode", {"parent": doc.name, "custom_is_salla_barcode": 1}
-    )
-    headers = {
-        "Authorization": f"Bearer {merchant.access_token}",
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Accept": "application/json",
-    }
-    data = {"price": price}
-
-    print(f"data : {data}")
-    response = requests.post(
-        f"https://api.salla.dev/admin/v2/products/sku/{barcode.barcode}/price",
-        headers=headers,
-        data=data,
-    )
-    print(f"response is {response}")
-    response_message = frappe._dict(response.json())
-    if response.status_code == 200:
-        return response_message
-    else:
-        print(response_message)
-        return response_message
-
-
-def update_salla_price(item_price):
-    today = getdate()
-    if item_price.selling and getdate(item_price.valid_from) == today:
-        item = frappe.get_doc("Item", item_price.item_code)
-        if item.custom_is_salla_item:
-            merchant_salla_setting_list = frappe.get_list(
-                "Salla Defaults", filters={"price_list": item_price.price_list}
-            )
-            print(merchant_salla_setting_list)
-            for salla_setting in merchant_salla_setting_list:
-                # handle updating price for variant items
-                if item.variant_of:
-                    update_variant_price(
-                        item, item_price.price_list_rate, salla_setting.name
-                    )
-                else:
-                    update_price_using_barcode(
-                        item_price.item_code,
-                        item_price.price_list_rate,
-                        salla_setting.name,
-                    )
 
 
 def create_or_update_salla_item(doc, merchant_name):
@@ -343,63 +280,6 @@ def create_or_update_salla_item(doc, merchant_name):
                 frappe.msgprint("New item created successfully.")
             else:
                 frappe.throw(f"Failed to create new item. {add_response.reason}")
-
-
-# Helper functions
-def get_product_details(headers, salla_base_url, barcode):
-    check_url = f"{salla_base_url}/products/sku/{barcode.barcode}"
-    return requests.get(check_url, headers=headers)
-
-
-def update_item_by_barcode(headers, salla_base_url, barcode, item_data):
-    update_url = f"{salla_base_url}/products/sku/{barcode.barcode}"
-    return requests.put(update_url, json=item_data, headers=headers)
-
-
-def add_new_salla_item(headers, salla_base_url, item_data):
-    add_url = f"{salla_base_url}/products"
-    return requests.post(add_url, json=item_data, headers=headers)
-
-
-def create_product_option(headers, salla_base_url, product_id, option_data):
-    create_product_option_url = f"{salla_base_url}/products/{product_id}/options"
-    return requests.post(create_product_option_url, json=option_data, headers=headers)
-
-
-def create_product_option_value(headers, salla_base_url, option_id, option_data):
-    create_product_option_value_url = f"{salla_base_url}/products/options/{option_id}"
-    return requests.post(
-        create_product_option_value_url, json=option_data, headers=headers
-    )
-
-
-def update_product_variant(headers, salla_base_url, variant, variant_data):
-    update_product_variant_url = f"{salla_base_url}/products/variants/{variant}"
-    return requests.put(update_product_variant_url, json=variant_data, headers=headers)
-
-
-def update_product_variant_qty(headers, salla_base_url, variant, variant_data):
-    update_product_variant_url = (
-        f"{salla_base_url}/products/quantities/variant/{variant}"
-    )
-    return requests.put(update_product_variant_url, json=variant_data, headers=headers)
-
-
-def set_response_and_message(statusCode, message):
-    frappe.local.response.http_status_code = statusCode
-    return message
-
-
-def update_variant_price(item_variant, price, merchant_name):
-    merchant = frappe.get_doc("Salla Settings", merchant_name)
-    headers = {
-        "Authorization": f"Bearer {merchant.access_token}",
-        "Content-Type": "application/json",
-    }
-    data = {"price": price}
-    update_product_variant(
-        headers, salla_base_url, item_variant.custom_salla_variant_id, data
-    )
 
 
 @frappe.whitelist()
