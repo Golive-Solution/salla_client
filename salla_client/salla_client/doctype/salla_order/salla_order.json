@@ -51,8 +51,7 @@
   "amended_from",
   "update_document",
   "is_store_delivery",
-  "connections_tab",
-  "received_event"
+  "connections_tab"
  ],
  "fields": [
   {
@@ -351,19 +350,12 @@
    "fieldname": "connections_tab",
    "fieldtype": "Tab Break",
    "label": "Connections"
-  },
-  {
-   "allow_on_submit": 1,
-   "fieldname": "received_event",
-   "fieldtype": "Link",
-   "label": "Received Event",
-   "options": "Salla Received Events"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-02-11 15:13:48.647451",
+ "modified": "2025-02-23 12:53:00.464424",
  "modified_by": "Administrator",
  "module": "Salla Client",
  "name": "Salla Order",
