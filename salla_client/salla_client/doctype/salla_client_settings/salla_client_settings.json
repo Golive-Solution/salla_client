@@ -7,7 +7,8 @@
  "field_order": [
   "server_url",
   "api_key",
-  "api_secret"
+  "api_secret",
+  "site"
  ],
  "fields": [
   {
@@ -22,14 +23,19 @@
   },
   {
    "fieldname": "api_secret",
-   "fieldtype": "Password",
+   "fieldtype": "Data",
    "label": "API Secret"
+  },
+  {
+   "fieldname": "site",
+   "fieldtype": "Data",
+   "label": "Site"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-02-13 11:20:39.647239",
+ "modified": "2025-02-23 16:11:56.029949",
  "modified_by": "Administrator",
  "module": "Salla Client",
  "name": "Salla Client Settings",
