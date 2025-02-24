@@ -18,6 +18,7 @@ def before_save(doc, method):
 def on_update(doc, method):
     for row in doc.custom_salla_item:
         print("ON UPDATE !!!!!")
+        ## This should be optimized for bulk processing to reduce api calls
         create_or_update_salla_item(doc, row.merchant)
 
 
