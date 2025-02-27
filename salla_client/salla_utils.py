@@ -42,10 +42,31 @@ def update_product_balance_warehouse(merchant_name=None, item=None):
 ## Will be optimized later
 def create_or_update_salla_item(doc, merchant_name):
     settings = get_api_settings()
+
+    minimal_data = {
+        "name": doc.name,
+        "item_name": doc.item_name,
+        "standard_rate": doc.standard_rate,
+        "custom_product_type": doc.custom_product_type,
+        "description": doc.description,
+        "custom_send_item_to_salla": doc.custom_send_item_to_salla,
+        "custom_product_image": doc.custom_product_image,
+        "variant_of": doc.variant_of,
+        "weight_per_unit": doc.weight_per_unit,
+        "attributes": (
+            [
+                {"attribute": attr.attribute, "attribute_value": attr.attribute_value}
+                for attr in doc.attributes
+            ]
+            if hasattr(doc, "attributes")
+            else []
+        ),
+    }
+
     data = {
         "site": settings["site"],
         "function": "create_or_update_salla_item",
-        "data": str({"merchant_name": merchant_name, "doc": doc.as_dict()}),
+        "data": str({"merchant_name": merchant_name, "doc": minimal_data}),
     }
 
     try:
