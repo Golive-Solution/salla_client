@@ -12,6 +12,24 @@ def get_api_settings():
     return {"url": settings.server_url, "headers": api_headers, "site": settings.site}
 
 
+# Allow Salla Monitor to set Merchants into salla client
+@frappe.whitelist()
+def set_merchant_data(merchant_data):
+    merchant_data = frappe._dict(merchant_data)
+    merchant_exists = frappe.db.exists("Salla Merchant", merchant_data.merchant)
+    if not merchant_exists:
+        merchant = frappe.get_doc({"doctype": "Salla Merchant"})
+        merchant.merchant = merchant_data.merchant
+        merchant.merchant_name = merchant_data.merchant_name
+        merchant.save()
+
+    response = frappe._dict({})
+    response.status_code = 200
+    response.ok = 1
+    response.message = "Set merchant data in salla client"
+    return response
+
+
 # The server will process the data and update client data
 @frappe.whitelist()
 def update_product_balance_warehouse(merchant_name=None, item=None):
