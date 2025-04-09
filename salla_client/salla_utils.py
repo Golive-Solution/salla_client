@@ -135,3 +135,15 @@ def update_variant_qty(item_variant, merchant_name, salla_item_info_name):
     except requests.exceptions.HTTPError as e:
         frappe.log_error(f"Failed to update variant qty: {str(e)}", "Salla API Error")
         frappe.throw(_("Failed to send data to server. Please check logs."))
+
+
+# Allows Salla Server to update merchant requests balance
+@frappe.whitelist()
+def update_merchant_requests(**args):
+    args_dict = frappe._dict(args)
+    merchant = frappe.get_doc("Salla Merchant", args_dict.merchant)
+    last_row = merchant.salla_requests[-1]
+    last_row.number_of_requests = args_dict.number_of_requests
+    last_row.consumed_requests = args_dict.consumed_requests
+    last_row.remaining_requests = args_dict.remaining_requests
+    merchant.save()
