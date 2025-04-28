@@ -8,34 +8,63 @@
   "server_url",
   "api_key",
   "api_secret",
-  "site"
+  "site",
+  "update_product_balance_warehouse",
+  "create_or_update_salla_item",
+  "update_variant_qty"
  ],
  "fields": [
   {
    "fieldname": "server_url",
    "fieldtype": "Data",
-   "label": "Server URL"
+   "in_list_view": 1,
+   "label": "Server URL",
+   "reqd": 1
   },
   {
    "fieldname": "api_key",
    "fieldtype": "Data",
-   "label": "API Key"
+   "in_list_view": 1,
+   "label": "API Key",
+   "reqd": 1
   },
   {
    "fieldname": "api_secret",
    "fieldtype": "Data",
-   "label": "API Secret"
+   "in_list_view": 1,
+   "label": "API Secret",
+   "reqd": 1
   },
   {
    "fieldname": "site",
    "fieldtype": "Data",
-   "label": "Site"
+   "in_list_view": 1,
+   "label": "Site",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "update_product_balance_warehouse",
+   "fieldtype": "Check",
+   "label": "Update Product Balance Warehouse"
+  },
+  {
+   "default": "0",
+   "fieldname": "update_variant_qty",
+   "fieldtype": "Check",
+   "label": "Update Variant Qty"
+  },
+  {
+   "default": "0",
+   "fieldname": "create_or_update_salla_item",
+   "fieldtype": "Check",
+   "label": "Create or Update Salla Item"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-02-23 16:11:56.029949",
+ "modified": "2025-04-28 18:57:26.554342",
  "modified_by": "Administrator",
  "module": "Salla Client",
  "name": "Salla Client Settings",

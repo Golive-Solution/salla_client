@@ -3,8 +3,38 @@ from frappe import _
 import requests
 
 
-def get_api_settings():
+def get_api_settings(feature):
+    """
+    Get API settings if feature is enabled and validate all required fields exist.
+    Returns settings dict if successful or None if feature is disabled.
+    Raises ValidationError if required settings are missing.
+    """
+    # Early return if feature is not enabled
     settings = frappe.get_single("Salla Client Settings")
+    feature_is_enabled = getattr(settings, feature, 0)
+    print(feature_is_enabled)
+    if not feature_is_enabled:
+        return None
+
+    # Check all required fields
+    required_fields = {
+        "api_key": "Server API key is required.",
+        "api_secret": "Server API secret is required.",
+        "server_url": "Server URL is required.",
+        "site": "Site name is required.",
+    }
+
+    # Validate all required fields exist
+    missing_fields = []
+    for field, error_msg in required_fields.items():
+        if not getattr(settings, field, None):
+            missing_fields.append(error_msg)
+
+    # If any required fields are missing, raise a combined validation error
+    if missing_fields:
+        raise frappe.ValidationError("\n".join(missing_fields))
+
+    # All required fields are present, return settings
     api_headers = {
         "Authorization": f"token {settings.api_key}:{settings.api_secret}",
         "Content-Type": "application/json",
@@ -33,7 +63,12 @@ def set_merchant_data(merchant_data):
 # The server will process the data and update client data
 @frappe.whitelist()
 def update_product_balance_warehouse(merchant_name=None, item=None):
-    settings = get_api_settings()
+    print("update_product_balance_warehouse ....")
+    settings = get_api_settings("update_product_balance_warehouse")
+    print(settings)
+    if not settings:
+        return
+
     data = {
         "site": settings["site"],
         "function": "update_product_balance_warehouse",
@@ -59,7 +94,11 @@ def update_product_balance_warehouse(merchant_name=None, item=None):
 
 ## Will be optimized later
 def create_or_update_salla_item(doc, merchant_name):
-    settings = get_api_settings()
+    print("create salla Item ...")
+    settings = get_api_settings("create_or_update_salla_item")
+
+    if not settings:
+        return
 
     minimal_data = {
         "name": doc.name,
@@ -108,7 +147,9 @@ def create_or_update_salla_item(doc, merchant_name):
 # We need a way to inform the client that the qty is updated on Salla
 @frappe.whitelist()
 def update_variant_qty(item_variant, merchant_name, salla_item_info_name):
-    settings = get_api_settings()
+    settings = get_api_settings("update_variant_qty")
+    if not settings:
+        return
     data = {
         "site": settings["site"],
         "function": "update_variant_qty",

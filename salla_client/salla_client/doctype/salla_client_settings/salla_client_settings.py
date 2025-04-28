@@ -6,4 +6,9 @@ from frappe.model.document import Document
 
 
 class SallaClientSettings(Document):
-	pass
+    def validate(self):
+        self.fix_url()
+
+    def fix_url(self):
+        if self.server_url:
+            self.server_url = self.server_url.strip().rstrip("/")
