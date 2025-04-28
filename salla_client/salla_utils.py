@@ -3,7 +3,7 @@ from frappe import _
 import requests
 
 
-def get_api_settings(feature:None):
+def get_api_settings(feature=None):
     """
     Get API settings if feature is enabled and validate all required fields exist.
     Returns settings dict if successful or None if feature is disabled.
