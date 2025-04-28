@@ -3,7 +3,7 @@ from frappe import _
 import requests
 
 
-def get_api_settings(feature):
+def get_api_settings(feature:None):
     """
     Get API settings if feature is enabled and validate all required fields exist.
     Returns settings dict if successful or None if feature is disabled.
@@ -11,10 +11,11 @@ def get_api_settings(feature):
     """
     # Early return if feature is not enabled
     settings = frappe.get_single("Salla Client Settings")
-    feature_is_enabled = getattr(settings, feature, 0)
-    print(feature_is_enabled)
-    if not feature_is_enabled:
-        return None
+    if feature :
+        feature_is_enabled = getattr(settings, feature, 0)
+        print(feature_is_enabled)
+        if not feature_is_enabled:
+            return None
 
     # Check all required fields
     required_fields = {
