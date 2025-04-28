@@ -122,15 +122,15 @@ doctype_js = {"Item": "public/js/item.js"}
 # ---------------
 # Hook on document methods and events
 
-doc_events = {
-    "Item": {
-        "before_save": "salla_client.events.stock.item.before_save",
-        "on_update": "salla_client.events.stock.item.on_update",
-    },
-    "Item Price": {
-        "before_save": "salla_client.events.stock.item_price.before_save",
-    },
-}
+# doc_events = {
+#     "Item": {
+#         "before_save": "salla_client.events.stock.item.before_save",
+#         "on_update": "salla_client.events.stock.item.on_update",
+#     },
+#     "Item Price": {
+#         "before_save": "salla_client.events.stock.item_price.before_save",
+#     },
+# }
 
 # Scheduled Tasks
 # ---------------
