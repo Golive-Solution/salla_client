@@ -40,7 +40,10 @@ def get_api_settings(feature=None):
         "Authorization": f"token {settings.api_key}:{settings.api_secret}",
         "Content-Type": "application/json",
     }
-    return {"url": settings.server_url, "headers": api_headers, "site": settings.site}
+
+    url = f"{settings.server_url}/api/resource/Received Salla Event To Salla"
+
+    return {"url": url, "headers": api_headers, "site": settings.site}
 
 
 # Allow Salla Monitor to set Merchants into salla client
@@ -88,7 +91,8 @@ def update_product_balance_warehouse(merchant_name=None, item=None):
 
     except requests.exceptions.HTTPError as e:
         frappe.log_error(
-            f"Failed to update product balance warehouse: {str(e)}", "Salla API Error"
+            f"Failed to update product balance warehouse: {response.text}",
+            "Salla API Error",
         )
         frappe.throw(_("Failed to send data to server. Please check logs."))
 
@@ -101,30 +105,10 @@ def create_or_update_salla_item(doc, merchant_name):
     if not settings:
         return
 
-    minimal_data = {
-        "name": doc.name,
-        "item_name": doc.item_name,
-        "standard_rate": doc.standard_rate,
-        "custom_product_type": doc.custom_product_type,
-        "description": doc.description,
-        "custom_send_item_to_salla": doc.custom_send_item_to_salla,
-        "custom_product_image": doc.custom_product_image,
-        "variant_of": doc.variant_of,
-        "weight_per_unit": doc.weight_per_unit,
-        "attributes": (
-            [
-                {"attribute": attr.attribute, "attribute_value": attr.attribute_value}
-                for attr in doc.attributes
-            ]
-            if hasattr(doc, "attributes")
-            else []
-        ),
-    }
-
     data = {
         "site": settings["site"],
         "function": "create_or_update_salla_item",
-        "data": str({"merchant_name": merchant_name, "doc": minimal_data}),
+        "data": str({"merchant_name": merchant_name, "doc": doc.as_dict()}),
     }
 
     try:
@@ -140,7 +124,7 @@ def create_or_update_salla_item(doc, merchant_name):
 
     except requests.exceptions.HTTPError as e:
         frappe.log_error(
-            f"Failed to create or update salla item: {str(e)}", "Salla API Error"
+            f"Failed to create or update salla item: {response.text}", "Salla API Error"
         )
         frappe.throw(_("Failed to send data to server. Please check logs."))
 
@@ -176,7 +160,9 @@ def update_variant_qty(item_variant, merchant_name, salla_item_info_name):
             frappe.msgprint(_("Sent to server"))
 
     except requests.exceptions.HTTPError as e:
-        frappe.log_error(f"Failed to update variant qty: {str(e)}", "Salla API Error")
+        frappe.log_error(
+            f"Failed to update variant qty: {response.text}", "Salla API Error"
+        )
         frappe.throw(_("Failed to send data to server. Please check logs."))
 
 
@@ -215,7 +201,9 @@ def update_salla_price(item_price):
             frappe.msgprint(_("Sent to server"))
 
     except requests.exceptions.HTTPError as e:
-        frappe.log_error(f"Failed to update Salla price: {str(e)}", "Salla API Error")
+        frappe.log_error(
+            f"Failed to update Salla price: {response.text}", "Salla API Error"
+        )
         frappe.throw(_("Failed to send data to server. Please check logs."))
 
 
