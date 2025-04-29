@@ -11,7 +11,7 @@ def get_api_settings(feature=None):
     """
     # Early return if feature is not enabled
     settings = frappe.get_single("Salla Client Settings")
-    if feature :
+    if feature:
         feature_is_enabled = getattr(settings, feature, 0)
         print(feature_is_enabled)
         if not feature_is_enabled:
@@ -151,6 +151,7 @@ def update_variant_qty(item_variant, merchant_name, salla_item_info_name):
     settings = get_api_settings("update_variant_qty")
     if not settings:
         return
+
     data = {
         "site": settings["site"],
         "function": "update_variant_qty",
@@ -190,8 +191,12 @@ def update_merchant_requests(**args):
     last_row.remaining_requests = args_dict.remaining_requests
     merchant.save()
 
+
 def update_salla_price(item_price):
-    settings = get_api_settings()
+    settings = get_api_settings("update_salla_price")
+
+    if not settings:
+        return
 
     data = {
         "site": settings["site"],
@@ -212,6 +217,7 @@ def update_salla_price(item_price):
     except requests.exceptions.HTTPError as e:
         frappe.log_error(f"Failed to update Salla price: {str(e)}", "Salla API Error")
         frappe.throw(_("Failed to send data to server. Please check logs."))
+
 
 def update_item_barcode(doc):
     old_doc = doc.get_doc_before_save()

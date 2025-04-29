@@ -11,7 +11,8 @@
   "site",
   "update_product_balance_warehouse",
   "create_or_update_salla_item",
-  "update_variant_qty"
+  "update_variant_qty",
+  "update_salla_price"
  ],
  "fields": [
   {
@@ -59,12 +60,18 @@
    "fieldname": "create_or_update_salla_item",
    "fieldtype": "Check",
    "label": "Create or Update Salla Item"
+  },
+  {
+   "default": "0",
+   "fieldname": "update_salla_price",
+   "fieldtype": "Check",
+   "label": "Update Salla Price"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-04-28 18:57:26.554342",
+ "modified": "2025-04-29 10:26:42.418315",
  "modified_by": "Administrator",
  "module": "Salla Client",
  "name": "Salla Client Settings",
