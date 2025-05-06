@@ -186,7 +186,7 @@ def update_salla_price(item_price):
 
     data = {
         "site": settings["site"],
-        "data": str(item_price.as_dict()),
+        "data": str(item_price),
         "function": "update_salla_price",
     }
     try:
