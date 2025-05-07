@@ -108,7 +108,7 @@ def create_or_update_salla_item(doc, merchant_name):
     data = {
         "site": settings["site"],
         "function": "create_or_update_salla_item",
-        "data": str({"merchant_name": merchant_name, "doc": doc.as_dict()}),
+        "data": str({"merchant_name": merchant_name, "doc": doc}),
     }
 
     try:
