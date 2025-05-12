@@ -1,6 +1,10 @@
 import frappe
 from frappe import _
 import requests
+from erpnext.stock.doctype.quick_stock_balance.quick_stock_balance import (
+    get_stock_item_details,
+)
+from frappe.utils.data import today
 
 
 def get_api_settings(feature=None):
@@ -66,35 +70,104 @@ def set_merchant_data(merchant_data):
 
 # The server will process the data and update client data
 @frappe.whitelist()
-def update_product_balance_warehouse(merchant_name=None, item=None):
+def update_product_balance_warehouse(merchant=None, item=None):
     print("update_product_balance_warehouse ....")
     settings = get_api_settings("update_product_balance_warehouse")
+    payload = format_doc_for_reception(merchant, item)
     print(settings)
-    if not settings:
-        return
+    print(payload)
+    # if not settings:
+    #     return
+    # data = {
+    #     "site": settings["site"],
+    #     "function": "update_product_balance_warehouse",
+    #     "data": str(payload),
+    # }
+    # try:
 
-    data = {
-        "site": settings["site"],
-        "function": "update_product_balance_warehouse",
-        "data": str({"merchant_name": merchant_name, "item": item}),
-    }
-    try:
+    #     response = requests.post(
+    #         settings["url"], headers=settings["headers"], json=data
+    #     )
 
-        response = requests.post(
-            settings["url"], headers=settings["headers"], json=data
+    #     response.raise_for_status()
+
+    #     if response.ok:
+    #         frappe.msgprint(_("Sent to server"))
+
+    # except requests.exceptions.HTTPError as e:
+    #     frappe.log_error(
+    #         f"Failed to update product balance warehouse: {response.text}",
+    #         "Salla API Error",
+    #     )
+    #     frappe.throw(_("Failed to send data to server. Please check logs."))
+
+
+def format_doc_for_reception(merchant_name=None, item=None):
+    if not merchant_name and not item:
+        frappe.throw("Please provide at least a merchant name or an item.")
+
+    payload = {"merchants": []}
+
+    merchant_filters = {"name": merchant_name} if merchant_name else {}
+    merchant_list = frappe.get_all(
+        "Salla Merchant", filters=merchant_filters, fields=["name", "merchant_name"]
+    )
+
+    for merchant in merchant_list:
+        merchant_data = {"merchant": merchant.name, "items": []}
+
+        salla_job_setting = frappe.get_doc("Salla Sync Job", merchant.name)
+        if not salla_job_setting:
+            continue
+
+        item_filters = {"merchant": merchant.name}
+        item_filters.update(
+            {"last_update": ("<", today())} if not item else {"parent": item}
         )
 
-        response.raise_for_status()
-
-        if response.ok:
-            frappe.msgprint(_("Sent to server"))
-
-    except requests.exceptions.HTTPError as e:
-        frappe.log_error(
-            f"Failed to update product balance warehouse: {response.text}",
-            "Salla API Error",
+        merchant_item_info_list = frappe.get_all(
+            "Salla Item Info",
+            filters=item_filters,
+            fields=[
+                "name",
+                "pending_online_quantity",
+                "parent",
+                "is_unlimited_qty",
+            ],
+            limit_page_length=salla_job_setting.product_balance_products_limit_per_request,
         )
-        frappe.throw(_("Failed to send data to server. Please check logs."))
+
+        for info in merchant_item_info_list:
+            warehouse_balance = {"qty": 0}
+            if salla_job_setting.warehouse:
+                warehouse_balance = get_stock_item_details(
+                    salla_job_setting.warehouse, frappe.utils.now(), info.parent
+                )
+
+            salla_product_sku = frappe.get_value(
+                "Item Barcode",
+                filters={
+                    "parent": info.parent,
+                    "custom_is_salla_barcode": 1,
+                },
+                fieldname="barcode",
+            )
+
+            if not salla_product_sku:
+                continue
+
+            quantity = warehouse_balance["qty"] - info.pending_online_quantity
+            merchant_data["items"].append({
+                "sku": salla_product_sku,
+                "quantity": quantity,
+                "unlimited_quantity": bool(info.is_unlimited_qty),
+                "info_name": info.name,
+            })
+
+        payload["merchants"].append(merchant_data)
+
+    return payload
+
 
 
 ## Will be optimized later
@@ -121,6 +194,8 @@ def create_or_update_salla_item(doc, merchant_name):
 
         if response.ok:
             frappe.msgprint(_("Sent to server"))
+            frappe.db.set_value("Item", doc["name"], "custom_is_synced", 1)
+            frappe.db.commit()
 
     except requests.exceptions.HTTPError as e:
         frappe.log_error(
@@ -128,14 +203,40 @@ def create_or_update_salla_item(doc, merchant_name):
         )
         frappe.throw(_("Failed to send data to server. Please check logs."))
 
+def format_variant_data(item_variant, merchant_name, salla_item_info_name):
+    custom_salla_variant_id = frappe.get_value("Item", item_variant, "custom_salla_variant_id")
 
+    warehouse_balance = 0
+    qty = 0
+    if not frappe.db.exists(
+        "Salla Sync Job", merchant_name
+    ):
+        frappe.throw("You Have To Put Warehouse In Salla Sync Job")
+
+    salla_job_setting = frappe.get_doc(
+        "Salla Sync Job", merchant_name
+    )
+
+    if salla_job_setting.warehouse:
+        warehouse_balance = get_stock_item_details(
+            salla_job_setting.warehouse, frappe.utils.now(), item_variant
+        )
+
+    salla_item_info = frappe.get_doc("Salla Item Info", salla_item_info_name)
+    qty = warehouse_balance["qty"] - salla_item_info.pending_online_quantity
+    return {
+        "merchant_name": merchant_name,
+        "custom_salla_variant_id": custom_salla_variant_id,
+        "qty": qty
+    }
 # We need a way to inform the client that the qty is updated on Salla
 @frappe.whitelist()
 def update_variant_qty(item_variant, merchant_name, salla_item_info_name):
     settings = get_api_settings("update_variant_qty")
+
     if not settings:
         return
-
+    payload = format_variant_data(item_variant, merchant_name, salla_item_info_name)
     data = {
         "site": settings["site"],
         "function": "update_variant_qty",
@@ -224,8 +325,8 @@ def Update_salla_online_qty(doc):
 
 def update_online_qty(doc):
     total_online_qty = 0
-
-    if doc.update_online_qty and not doc.parent.is_bundle:
+    parent_doc = frappe.get_doc("Item", doc.parent)
+    if doc.update_online_qty and not parent_doc.is_bundle:
         doc.update_online_qty = 0
         # Check for normal Items
         items = frappe.get_list(
@@ -234,7 +335,7 @@ def update_online_qty(doc):
                 ["is_document_submitted", "=", 0],
                 ["merchant", "=", doc.merchant],
                 ["order_status", "!=", "ملغي"],
-                ["item_code", "=", doc.parent.item_code],
+                ["item_code", "=", parent_doc.item_code],
             ],
             fields=["qty"],
         )
@@ -264,7 +365,7 @@ def update_online_qty(doc):
                 for barcode in barcodeList:
                     # frappe.msgprint('item barcode is : '+ barcode);
                     # frappe.msgprint('Item to be updated barcode is : '+ doc.barcode);
-                    if "#" + barcode + "#" in doc.parent.barcode:
+                    if "#" + barcode + "#" in parent_doc.custom_concatenated_barcode:
                         # frappe.msgprint('barcode is in doc item');
                         total_online_qty = total_online_qty + bundel_item.qty
                         # frappe.msgprint('total_online_qty is ' + str(total_online_qty));

@@ -219,25 +219,16 @@ doctype_js = {"Item": "public/js/item.js"}
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
-# fixtures = [
-#     {
-#         "dt": "Custom Field",
-#         "filters": {
-#             "name": [
-#                 "in",
-#                 [
-#                     "Item-custom_salla",
-#                     "Item-custom_salla_item",
-#                     "Item-custom_is_bundle",
-#                     "Item-custom_concatenated_barcode",
-#                     "Item-custom_is_salla_item",
-#                     "Item-custom_product_image",
-#                     "Item-custom_product_type",
-#                     "Item-custom_send_item_to_salla",
-#                     "Item-custom_salla_variant_id",
-#                     "Item Barcode-custom_is_salla_barcode",
-#                 ],
-#             ]
-#         },
-#     }
-# ]
+fixtures = [
+    {
+        "dt": "Custom Field",
+        "filters": {
+            "name": [
+                "in",
+                [
+                    "Item-custom_is_synced",
+                ],
+            ]
+        },
+    }
+]
