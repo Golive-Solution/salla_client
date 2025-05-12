@@ -30,7 +30,7 @@ frappe.ui.form.on("Salla Item Info", {
     console.log("Merchant: " + row.merchant + " Parent: " + frm.doc.name);
     if (!frm.doc.variant_of) {
       frappe.call({
-        method: "salla_client.salla_utils.update_product_balance_warehouse",
+        method: "salla_common.utils.update_product_balance_warehouse",
         args: {
           merchant: row.merchant, // Assuming 'merchant' is a field in the child table
           item: frm.doc.name, // Assuming 'item' is a field in the child table
@@ -43,7 +43,7 @@ frappe.ui.form.on("Salla Item Info", {
       });
     } else {
       frappe.call({
-        method: "salla_client.salla_utils.update_variant_qty",
+        method: "salla_common.utils.update_variant_qty",
         args: {
           merchant_name: row.merchant, // Assuming 'merchant' is a field in the child table
           item_variant: frm.doc.name, // Assuming 'item' is a field in the child table
