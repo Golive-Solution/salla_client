@@ -1,10 +1,23 @@
 import frappe
+import datetime
 from frappe import _
 import requests
 from erpnext.stock.doctype.quick_stock_balance.quick_stock_balance import (
     get_stock_item_details,
 )
 from frappe.utils.data import today
+
+def serialize_dates(obj):
+    if isinstance(obj, dict):
+        return {k: serialize_dates(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [serialize_dates(i) for i in obj]
+    elif isinstance(obj, (datetime.datetime, datetime.date)):
+        return obj.isoformat()
+    elif isinstance(obj, frappe.model.document.Document):
+        return obj.name
+    else:
+        return obj
 
 
 def get_api_settings(feature=None):
@@ -101,10 +114,6 @@ def update_product_balance_warehouse(payload):
         frappe.throw(_("Failed to send data to server. Please check logs."))
 
 
-
-
-
-
 ## Will be optimized later
 def create_or_update_salla_item(doc, merchant_name):
     print("create salla Item ...")
@@ -113,10 +122,12 @@ def create_or_update_salla_item(doc, merchant_name):
     if not settings:
         return
 
+    doc_data = serialize_dates(doc.as_dict())
+
     data = {
         "site": settings["site"],
         "function": "create_or_update_salla_item",
-        "data": str({"merchant_name": merchant_name, "doc": doc}),
+        "data": str({"merchant_name": merchant_name, "doc": doc_data}),
     }
 
     try:
@@ -129,7 +140,7 @@ def create_or_update_salla_item(doc, merchant_name):
 
         if response.ok:
             frappe.msgprint(_("Sent to server"))
-            frappe.db.set_value("Item", doc["name"], "custom_is_synced", 1)
+            frappe.db.set_value("Item", doc_data["name"], "custom_is_synced", 1)
             frappe.db.commit()
 
     except requests.exceptions.HTTPError as e:
@@ -146,12 +157,13 @@ def update_variant_qty(payload):
 
     if not settings:
         return
+
+    serialized_payload = serialize_dates(payload)
+
     data = {
         "site": settings["site"],
         "function": "update_variant_qty",
-        "data": str(
-            payload
-        ),
+        "data": str(serialized_payload),
     }
 
     try:
@@ -190,9 +202,11 @@ def update_salla_price(item_price):
     if not settings:
         return
 
+    serialized_data = serialize_dates(item_price.as_dict())
+
     data = {
         "site": settings["site"],
-        "data": str(item_price),
+        "data": str(serialized_data),
         "function": "update_salla_price",
     }
     try:
