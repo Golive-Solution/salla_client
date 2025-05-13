@@ -13,6 +13,7 @@
   "tax_account",
   "territory",
   "pos_profile",
+  "taxe_included_in_basic_rate",
   "cod_item",
   "tax_description",
   "tax_type",
@@ -81,11 +82,17 @@
    "fieldtype": "Link",
    "label": "Company",
    "options": "Company"
+  },
+  {
+   "default": "0",
+   "fieldname": "taxe_included_in_basic_rate",
+   "fieldtype": "Check",
+   "label": "Taxe Included In Basic Rate"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-11 15:13:51.602272",
+ "modified": "2025-05-13 12:50:45.816500",
  "modified_by": "Administrator",
  "module": "Salla Client",
  "name": "Salla Defaults",
