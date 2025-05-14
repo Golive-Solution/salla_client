@@ -202,7 +202,7 @@ def update_salla_price(item_price):
     if not settings:
         return
 
-    serialized_data = serialize_dates(item_price.as_dict())
+    serialized_data = serialize_dates(item_price)
 
     data = {
         "site": settings["site"],
