@@ -5,7 +5,8 @@ import requests
 from erpnext.stock.doctype.quick_stock_balance.quick_stock_balance import (
     get_stock_item_details,
 )
-from frappe.utils.data import today
+from frappe.utils import getdate, nowdate
+
 
 def serialize_dates(obj):
     if isinstance(obj, dict):
@@ -189,11 +190,41 @@ def update_variant_qty(payload):
 def update_merchant_requests(**args):
     args_dict = frappe._dict(args)
     merchant = frappe.get_doc("Salla Merchant", args_dict.merchant)
-    last_row = merchant.salla_requests[-1]
-    last_row.number_of_requests = args_dict.number_of_requests
-    last_row.consumed_requests = args_dict.consumed_requests
-    last_row.remaining_requests = args_dict.remaining_requests
+    
+    today = getdate(nowdate())
+    valid_from = getdate(args_dict.valid_from)
+    valid_to = getdate(args_dict.valid_to)
+
+    last_row = merchant.salla_requests[-1] if merchant.salla_requests else None
+
+    should_add_new_row = True
+
+    if last_row:
+        # Convert dates from string to date object if needed
+        last_valid_from = getdate(last_row.valid_from)
+        last_valid_to = getdate(last_row.valid_to)
+
+        # Check if last row is not expired and has same validity period
+        if last_valid_to >= today and last_valid_from == valid_from and last_valid_to == valid_to:
+            should_add_new_row = False
+
+    if should_add_new_row:
+        merchant.append("salla_requests", {
+            "plan_type": args_dict.plan_type,
+            "created_on": args_dict.created_on,
+            "valid_from": valid_from,
+            "valid_to": valid_to,
+            "number_of_requests": args_dict.number_of_requests,
+            "consumed_requests": args_dict.consumed_requests,
+            "remaining_requests": args_dict.remaining_requests,
+        })
+    else:
+        last_row.number_of_requests = args_dict.number_of_requests
+        last_row.consumed_requests = args_dict.consumed_requests
+        last_row.remaining_requests = args_dict.remaining_requests
+
     merchant.save()
+
 
 
 def update_salla_price(item_price):
