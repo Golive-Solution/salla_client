@@ -123,7 +123,7 @@ def create_or_update_salla_item(doc, merchant_name):
     if not settings:
         return
 
-    doc_data = serialize_dates(doc.as_dict())
+    doc_data = serialize_dates(doc)
 
     data = {
         "site": settings["site"],
