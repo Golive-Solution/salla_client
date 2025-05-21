@@ -270,12 +270,12 @@ def update_item_barcode(doc):
 
 def Update_salla_online_qty(doc):
     for salla_item_info in doc.custom_salla_item:
-        update_online_qty(salla_item_info)
+        update_online_qty(salla_item_info, doc)
 
 
-def update_online_qty(doc):
+def update_online_qty(doc, parent_doc):
     total_online_qty = 0
-    parent_doc = frappe.get_doc("Item", doc.parent)
+    # parent_doc = frappe.get_doc("Item", doc.parent)
     if doc.update_online_qty and not parent_doc.is_bundle:
         doc.update_online_qty = 0
         # Check for normal Items
