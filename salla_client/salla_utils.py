@@ -216,11 +216,21 @@ def update_merchant_requests(**args):
             "valid_to": valid_to,
             "number_of_requests": args_dict.number_of_requests,
             "consumed_requests": args_dict.consumed_requests,
+            "salla_orders": args_dict.salla_orders,
+            "create_update_items": args_dict.create_update_items,
+            "update_balance": args_dict.update_balance,
+            "update_item_price": args_dict.update_item_price,
+            "bulk_item_balance_update": args_dict.bulk_item_balance_update,
             "remaining_requests": args_dict.remaining_requests,
         })
     else:
         last_row.number_of_requests = args_dict.number_of_requests
         last_row.consumed_requests = args_dict.consumed_requests
+        last_row.salla_orders = args_dict.salla_orders
+        last_row.create_update_items = args_dict.create_update_items
+        last_row.update_balance = args_dict.update_balance
+        last_row.update_item_price = args_dict.update_item_price
+        last_row.bulk_item_balance_update = args_dict.bulk_item_balance_update
         last_row.remaining_requests = args_dict.remaining_requests
 
     merchant.save()
