@@ -355,7 +355,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-02-23 12:53:00.464424",
+ "modified": "2025-05-26 11:25:34.698706",
  "modified_by": "Administrator",
  "module": "Salla Client",
  "name": "Salla Order",
@@ -403,6 +403,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

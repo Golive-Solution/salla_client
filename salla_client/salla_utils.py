@@ -10,7 +10,7 @@ from frappe.utils import getdate, nowdate
 
 def serialize_dates(obj):
     if isinstance(obj, dict):
-        return {k: serialize_dates(v) for k, v in obj.items()}
+        return {k: serialize_dates(v) for k, v in obj.salla_order_items()}
     elif isinstance(obj, list):
         return [serialize_dates(i) for i in obj]
     elif isinstance(obj, (datetime.datetime, datetime.date)):
@@ -45,7 +45,7 @@ def get_api_settings(feature=None):
 
     # Validate all required fields exist
     missing_fields = []
-    for field, error_msg in required_fields.items():
+    for field, error_msg in required_fields.salla_order_items():
         if not getattr(settings, field, None):
             missing_fields.append(error_msg)
 
@@ -284,12 +284,15 @@ def Update_salla_online_qty(doc):
 
 
 def update_online_qty(doc, parent_doc):
+    if frappe.db.exists("Salla Defaults", doc.merchant):
+        salla_default = frappe.get_doc("Salla Defaults", doc.merchant)
+    else:
+        frappe.throw(f"Merchant {doc.merchant} Defaults Not Exist.")
     total_online_qty = 0
-    # parent_doc = frappe.get_doc("Item", doc.parent)
-    if doc.update_online_qty and not parent_doc.is_bundle:
+    if not parent_doc.custom_is_bundle:
         doc.update_online_qty = 0
         # Check for normal Items
-        items = frappe.get_list(
+        salla_order_items = frappe.get_all(
             "Salla Order Item",
             filters=[
                 ["is_document_submitted", "=", 0],
@@ -299,10 +302,10 @@ def update_online_qty(doc, parent_doc):
             ],
             fields=["qty"],
         )
-        # frappe.msgprint('Non Bunsle items length is : ' + str(len(items)));
-        if len(items) > 0:
-            for item in items:
-                total_online_qty = total_online_qty + item.qty
+        print(f"salla_order_items: {len(salla_order_items) }")
+        if len(salla_order_items) > 0:
+            total_online_qty = sum(salla_order_item.qty for salla_order_item in salla_order_items)
+            print(f"Total online qty for normal items: {total_online_qty}")
 
         # Check for Item in bundles
         bundel_items = frappe.get_list(
@@ -315,23 +318,13 @@ def update_online_qty(doc, parent_doc):
             ],
             fields=["qty", "barcode", "merchant"],
         )
-        # frappe.msgprint('bundel_items length is : ' + str(len(bundel_items)));
         if len(bundel_items) > 0:
             for bundel_item in bundel_items:
-                # frappe.msgprint('bundle barcode is : '+ bundel_item.barcode);
-                # frappe.msgprint('bundle qty is : '+ str(bundel_item.qty));
-                # frappe.msgprint('total_online_qty is ' + str(total_online_qty));
-                barcodeList = bundel_item.barcode.split("-")
+                barcodeList = bundel_item.barcode.split(salla_default.bundle_barcode_separator)
                 for barcode in barcodeList:
-                    # frappe.msgprint('item barcode is : '+ barcode);
-                    # frappe.msgprint('Item to be updated barcode is : '+ doc.barcode);
                     if "#" + barcode + "#" in parent_doc.custom_concatenated_barcode:
-                        # frappe.msgprint('barcode is in doc item');
                         total_online_qty = total_online_qty + bundel_item.qty
-                        # frappe.msgprint('total_online_qty is ' + str(total_online_qty));
         doc.pending_online_quantity = total_online_qty
-        # frappe.msgprint('total_online_qty is ' + str(total_online_qty));
-        # frappe.msgprint('pending_online_quantity is ' + str(doc.pending_online_quantity));
 
 
 def setup_variant_data(doc, send_to_salla, merchant_name):
