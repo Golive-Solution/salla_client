@@ -22,7 +22,7 @@ class SallaOrderFulfilment(Document):
     def before_insert(self):
         self.scan_order_barcode = ""
         self.preparing_date = frappe.utils.today()
-        sallaOrderItems = frappe.get_list(
+        sallaOrderItems = frappe.get_all(
             "Salla Order Item",
             filters={"parent": self.salla_order_no},
             fields=["barcode", "item_code", "salla_item_name", "qty", "rate"],
@@ -71,7 +71,7 @@ class SallaOrderFulfilment(Document):
                     sallaOrderItemFulfilment.discount_amount = item.discount_amount
                     sallaOrderItemFulfilment.d_qty = 0 - item.qty
                     self.append("item", sallaOrderItemFulfilment)
-        sallaOrderShippments = frappe.get_list(
+        sallaOrderShippments = frappe.get_all(
             "Salla Order Shipment Details",
             filters={"parent": self.salla_order_no},
             fields=["tracking_number", "tracking_link", "lable_url"],

@@ -308,7 +308,7 @@ def update_online_qty(doc, parent_doc):
             print(f"Total online qty for normal items: {total_online_qty}")
 
         # Check for Item in bundles
-        bundel_items = frappe.get_list(
+        bundel_items = frappe.get_all(
             "Salla Order Item",
             filters=[
                 ["is_document_submitted", "=", 0],
