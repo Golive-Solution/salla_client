@@ -10,7 +10,7 @@ from frappe.utils import getdate, nowdate
 
 def serialize_dates(obj):
     if isinstance(obj, dict):
-        return {k: serialize_dates(v) for k, v in obj.salla_order_items()}
+        return {k: serialize_dates(v) for k, v in obj.items()}
     elif isinstance(obj, list):
         return [serialize_dates(i) for i in obj]
     elif isinstance(obj, (datetime.datetime, datetime.date)):
@@ -45,7 +45,7 @@ def get_api_settings(feature=None):
 
     # Validate all required fields exist
     missing_fields = []
-    for field, error_msg in required_fields.salla_order_items():
+    for field, error_msg in required_fields.items():
         if not getattr(settings, field, None):
             missing_fields.append(error_msg)
 
