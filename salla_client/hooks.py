@@ -135,13 +135,13 @@ app_license = "mit"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-#     "all": ["salla_client.tasks.all"],
-#     "daily": ["salla_client.tasks.daily"],
-#     "hourly": ["salla_client.tasks.hourly"],
-#     "weekly": ["salla_client.tasks.weekly"],
-#     "monthly": ["salla_client.tasks.monthly"],
-# }
+scheduler_events = {
+    "cron": {
+        "0 0 * * *": [
+            "salla_client.tasks.bulk_update_warehouse_balance.update_warehouse_balance"
+        ]
+    }
+}
 
 # Testing
 # -------

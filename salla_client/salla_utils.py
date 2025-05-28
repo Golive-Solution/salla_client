@@ -190,7 +190,7 @@ def update_variant_qty(payload):
 def update_merchant_requests(**args):
     args_dict = frappe._dict(args)
     merchant = frappe.get_doc("Salla Merchant", args_dict.merchant)
-    
+
     today = getdate(nowdate())
     valid_from = getdate(args_dict.valid_from)
     valid_to = getdate(args_dict.valid_to)
@@ -205,24 +205,31 @@ def update_merchant_requests(**args):
         last_valid_to = getdate(last_row.valid_to)
 
         # Check if last row is not expired and has same validity period
-        if last_valid_to >= today and last_valid_from == valid_from and last_valid_to == valid_to:
+        if (
+            last_valid_to >= today
+            and last_valid_from == valid_from
+            and last_valid_to == valid_to
+        ):
             should_add_new_row = False
 
     if should_add_new_row:
-        merchant.append("salla_requests", {
-            "plan_type": args_dict.plan_type,
-            "created_on": args_dict.created_on,
-            "valid_from": valid_from,
-            "valid_to": valid_to,
-            "number_of_requests": args_dict.number_of_requests,
-            "consumed_requests": args_dict.consumed_requests,
-            "salla_orders": args_dict.salla_orders,
-            "create_update_items": args_dict.create_update_items,
-            "update_balance": args_dict.update_balance,
-            "update_item_price": args_dict.update_item_price,
-            "bulk_item_balance_update": args_dict.bulk_item_balance_update,
-            "remaining_requests": args_dict.remaining_requests,
-        })
+        merchant.append(
+            "salla_requests",
+            {
+                "plan_type": args_dict.plan_type,
+                "created_on": args_dict.created_on,
+                "valid_from": valid_from,
+                "valid_to": valid_to,
+                "number_of_requests": args_dict.number_of_requests,
+                "consumed_requests": args_dict.consumed_requests,
+                "salla_orders": args_dict.salla_orders,
+                "create_update_items": args_dict.create_update_items,
+                "update_balance": args_dict.update_balance,
+                "update_item_price": args_dict.update_item_price,
+                "bulk_item_balance_update": args_dict.bulk_item_balance_update,
+                "remaining_requests": args_dict.remaining_requests,
+            },
+        )
     else:
         last_row.number_of_requests = args_dict.number_of_requests
         last_row.consumed_requests = args_dict.consumed_requests
@@ -234,7 +241,6 @@ def update_merchant_requests(**args):
         last_row.remaining_requests = args_dict.remaining_requests
 
     merchant.save()
-
 
 
 def update_salla_price(item_price):
@@ -304,7 +310,9 @@ def update_online_qty(doc, parent_doc):
         )
         print(f"salla_order_items: {len(salla_order_items) }")
         if len(salla_order_items) > 0:
-            total_online_qty = sum(salla_order_item.qty for salla_order_item in salla_order_items)
+            total_online_qty = sum(
+                salla_order_item.qty for salla_order_item in salla_order_items
+            )
             print(f"Total online qty for normal items: {total_online_qty}")
 
         # Check for Item in bundles
@@ -320,7 +328,9 @@ def update_online_qty(doc, parent_doc):
         )
         if len(bundel_items) > 0:
             for bundel_item in bundel_items:
-                barcodeList = bundel_item.barcode.split(salla_default.bundle_barcode_separator)
+                barcodeList = bundel_item.barcode.split(
+                    salla_default.bundle_barcode_separator
+                )
                 for barcode in barcodeList:
                     if "#" + barcode + "#" in parent_doc.custom_concatenated_barcode:
                         total_online_qty = total_online_qty + bundel_item.qty
@@ -354,3 +364,24 @@ def add_barcode(doc):
 def has_barcode(doc):
     """Checks if a barcode already exists in the item variant."""
     return any(barcode_entry.barcode for barcode_entry in doc.barcodes)
+
+@frappe.whitelist()
+def get_update_bulk_data_setting():
+    bulk_update_enabled = frappe.get_value(
+        "Salla Client Settings", None, "update_product_balance_warehouse"
+    )
+    salla_items = frappe.get_all(
+        "Item",
+        filters={"custom_is_salla_item": 1},
+        fields=["count(*) as count"],
+    )
+    cron_format = frappe.get_value(
+        "Scheduled Job Type",
+        {"method": "salla_client.tasks.bulk_update_warehouse_balance.update_warehouse_balance"},
+        "cron_format",
+    )
+    return {
+        "bulk_update_enabled": bulk_update_enabled,
+        "salla_items": salla_items[0].count,
+        "cron_format": cron_format,
+    }
