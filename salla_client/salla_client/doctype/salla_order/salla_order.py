@@ -50,7 +50,6 @@ class SallaOrder(Document):
         salla_order_no: DF.Data | None
         salla_payment_method: DF.Data | None
         salla_shipping_method: DF.Data | None
-        selling_price_list: DF.Link | None
         shipment_detials: DF.Table[SallaOrderShipmentDetails]
         shipping_cost: DF.Currency
         total_tax: DF.Currency
