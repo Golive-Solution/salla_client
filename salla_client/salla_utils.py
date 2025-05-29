@@ -1,24 +1,8 @@
 import frappe
-import datetime
 from frappe import _
 import requests
-from erpnext.stock.doctype.quick_stock_balance.quick_stock_balance import (
-    get_stock_item_details,
-)
 from frappe.utils import getdate, nowdate
-
-
-def serialize_dates(obj):
-    if isinstance(obj, dict):
-        return {k: serialize_dates(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        return [serialize_dates(i) for i in obj]
-    elif isinstance(obj, (datetime.datetime, datetime.date)):
-        return obj.isoformat()
-    elif isinstance(obj, frappe.model.document.Document):
-        return obj.name
-    else:
-        return obj
+from salla_client.utils import serialize_dates, validate_cron_format
 
 
 def get_api_settings(feature=None):
@@ -365,6 +349,7 @@ def has_barcode(doc):
     """Checks if a barcode already exists in the item variant."""
     return any(barcode_entry.barcode for barcode_entry in doc.barcodes)
 
+
 @frappe.whitelist()
 def get_update_bulk_data_setting():
     bulk_update_enabled = frappe.get_value(
@@ -377,7 +362,9 @@ def get_update_bulk_data_setting():
     )
     cron_format = frappe.get_value(
         "Scheduled Job Type",
-        {"method": "salla_client.tasks.bulk_update_warehouse_balance.update_warehouse_balance"},
+        {
+            "method": "salla_client.tasks.bulk_update_warehouse_balance.update_warehouse_balance"
+        },
         "cron_format",
     )
     return {
@@ -385,3 +372,32 @@ def get_update_bulk_data_setting():
         "salla_items": salla_items[0].count,
         "cron_format": cron_format,
     }
+
+
+@frappe.whitelist()
+def update_warehouse_balance_cron_format(cron_format):
+    """
+    Update the cron format for warehouse balance scheduled job with validation
+    """
+    try:
+        # Validate cron format
+        validate_cron_format(cron_format)
+
+        # Update the cron format if validation passes
+        frappe.db.set_value(
+            "Scheduled Job Type",
+            "bulk_update_warehouse_balance.update_warehouse_balance",
+            "cron_format",
+            cron_format,
+        )
+
+        frappe.db.commit()
+
+        return {
+            "success": True,
+            "message": f"Cron format updated successfully to: {cron_format}",
+        }
+
+    except Exception as e:
+        frappe.log_error(f"Error updating cron format: {str(e)}")
+        frappe.throw(f"Failed to update cron format: {str(e)}")
