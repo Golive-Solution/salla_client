@@ -1,0 +1,129 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:merchant",
+ "creation": "2024-06-05 10:58:29.721518",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "merchant",
+  "company",
+  "customer_group",
+  "territory",
+  "price_list",
+  "bundle_barcode_separator",
+  "column_break_rwla",
+  "pos_profile",
+  "cod_item",
+  "tax_account",
+  "taxe_included_in_basic_rate",
+  "tax_description",
+  "tax_type"
+ ],
+ "fields": [
+  {
+   "fieldname": "merchant",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Merchant",
+   "options": "Salla Merchant",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "customer_group",
+   "fieldtype": "Link",
+   "label": "Customer Group",
+   "options": "Customer Group"
+  },
+  {
+   "fieldname": "tax_account",
+   "fieldtype": "Link",
+   "label": "Tax Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "territory",
+   "fieldtype": "Link",
+   "label": "Territory",
+   "options": "Territory"
+  },
+  {
+   "fieldname": "pos_profile",
+   "fieldtype": "Link",
+   "label": "POS Profile",
+   "mandatory_depends_on": "eval: doc.taxe_included_in_basic_rate",
+   "options": "POS Profile"
+  },
+  {
+   "fieldname": "cod_item",
+   "fieldtype": "Link",
+   "label": "COD Item",
+   "options": "Item"
+  },
+  {
+   "fieldname": "tax_description",
+   "fieldtype": "Data",
+   "label": "Tax Description"
+  },
+  {
+   "fieldname": "tax_type",
+   "fieldtype": "Select",
+   "label": "Tax Type",
+   "options": "Actual\nOn Net Total\nOn Previous Row Amount\nOn Previous Row Total\nOn Item Quantity"
+  },
+  {
+   "fieldname": "price_list",
+   "fieldtype": "Link",
+   "label": "Price List",
+   "options": "Price List"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "default": "0",
+   "fieldname": "taxe_included_in_basic_rate",
+   "fieldtype": "Check",
+   "label": "Taxe Included In Basic Rate"
+  },
+  {
+   "fieldname": "bundle_barcode_separator",
+   "fieldtype": "Data",
+   "label": "Bundle Barcode Separator"
+  },
+  {
+   "fieldname": "column_break_rwla",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-05-25 18:57:22.540796",
+ "modified_by": "Administrator",
+ "module": "Salla Common",
+ "name": "Salla Defaults",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
