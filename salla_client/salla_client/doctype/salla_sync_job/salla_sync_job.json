@@ -80,7 +80,7 @@
  "links": [],
  "modified": "2025-05-25 12:11:39.594881",
  "modified_by": "Administrator",
- "module": "Salla Common",
+ "module": "Salla Client",
  "name": "Salla Sync Job",
  "naming_rule": "By fieldname",
  "owner": "Administrator",

@@ -106,7 +106,7 @@
  "links": [],
  "modified": "2025-05-25 18:57:22.540796",
  "modified_by": "Administrator",
- "module": "Salla Common",
+ "module": "Salla Client",
  "name": "Salla Defaults",
  "naming_rule": "By fieldname",
  "owner": "Administrator",
