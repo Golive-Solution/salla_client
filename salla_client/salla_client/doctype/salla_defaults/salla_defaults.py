@@ -5,6 +5,27 @@ import frappe
 from frappe.model.document import Document
 
 class SallaDefaults(Document):
+	# begin: auto-generated types
+	# This code is auto-generated. Do not modify anything in this block.
+
+	from typing import TYPE_CHECKING
+
+	if TYPE_CHECKING:
+		from frappe.types import DF
+
+		bundle_barcode_separator: DF.Data | None
+		cod_item: DF.Link | None
+		company: DF.Link | None
+		customer_group: DF.Link | None
+		merchant: DF.Link
+		pos_profile: DF.Link | None
+		price_list: DF.Link
+		tax_account: DF.Link | None
+		tax_description: DF.Data | None
+		tax_type: DF.Literal["Actual", "On Net Total", "On Previous Row Amount", "On Previous Row Total", "On Item Quantity"]
+		taxe_included_in_basic_rate: DF.Check
+		territory: DF.Link | None
+	# end: auto-generated types
 	def validate(self):
 		if self.pos_profile and self.taxe_included_in_basic_rate:
 			taxes_and_charges = frappe.get_value("POS Profile", self.pos_profile, "taxes_and_charges")

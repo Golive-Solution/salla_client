@@ -78,7 +78,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-25 12:11:39.594881",
+ "modified": "2025-06-02 11:36:24.516404",
  "modified_by": "Administrator",
  "module": "Salla Client",
  "name": "Salla Sync Job",
@@ -98,6 +98,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []
