@@ -227,6 +227,17 @@ fixtures = [
                 "in",
                 [
                     "Item-custom_is_synced",
+                    "Item-custom_salla",
+                    "Item-custom_salla_item",
+                    "Item-custom_is_bundle",
+                    "Item-custom_concatenated_barcode",
+                    "Item-custom_is_salla_item",
+                    "Item-custom_product_image",
+                    "Item-custom_product_type",
+                    "Item-custom_send_item_to_salla",
+                    "Item-custom_salla_variant_id",
+                    "Item-custom_update_pending_online_quantity",
+                    "Item Barcode-custom_is_salla_barcode",
                 ],
             ]
         },
