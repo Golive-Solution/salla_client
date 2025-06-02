@@ -68,7 +68,8 @@ app_license = "mit"
 # ------------
 
 # before_install = "salla_client.install.before_install"
-# after_install = "salla_client.install.after_install"
+after_install = "salla_client.install.after_install"
+after_migrate = "salla_client.install.after_install"
 
 # Uninstallation
 # ------------
@@ -183,7 +184,23 @@ scheduler_events = {
 
 # User Data Protection
 # --------------------
-
+doc_events = {
+    "Salla Order": {
+        "validate": "salla_client.events.salla_common.handle_salla_order_validate",
+        "before_save": "salla_client.events.salla_common.handle_salla_order_before_save",
+        "before_insert": "salla_client.events.salla_common.handle_salla_order_before_insert",
+        "before_update_after_submit": "salla_client.events.salla_common.handle_salla_order_before_update_after_submit",
+        "on_cancel": "salla_client.events.salla_common.handle_salla_order_on_cancel",
+        "before_submit": "salla_client.events.salla_common.handle_salla_order_before_submit"
+    },
+    "Item": {
+        "before_save": "salla_client.events.salla_common.handle_item_before_save",
+        "on_update": "salla_client.events.salla_common.handle_item_on_update",
+    },
+    "Item Price": {
+        "before_save": "salla_client.events.salla_common.handle_item_price_before_save",
+    }
+}
 # user_data_fields = [
 # 	{
 # 		"doctype": "{doctype_1}",
@@ -207,7 +224,12 @@ scheduler_events = {
 
 # Authentication and authorization
 # --------------------------------
-
+doctype_js = {
+    "Salla Order":                   "public/js/salla_order.js",
+    "Salla Order Fulfillment":       "public/js/salla_order_fulfilment.js",
+    "Salla Shipment Method Mapping": "public/js/salla_shipment_method_mapping.js",
+    "Item":                          "public/js/item.js",
+}
 # auth_hooks = [
 # 	"salla_client.auth.validate"
 # ]
