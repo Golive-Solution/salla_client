@@ -1,0 +1,7 @@
+# frappe -- installed via bench
+salla-common-lib>=0.0.1
+
+# External dependencies
+requests>=2.31.0
+python-dateutil>=2.8.2
+PyJWT>=2.8.0 

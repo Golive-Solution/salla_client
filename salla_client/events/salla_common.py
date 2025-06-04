@@ -1,4 +1,4 @@
-from salla_common.event import item, item_price, salla_order
+from salla_common_lib.event import item, item_price, salla_order
 
 def handle_salla_order_validate(doc, method):
     return salla_order.validate(doc, method)

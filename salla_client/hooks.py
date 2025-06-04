@@ -187,20 +187,34 @@ scheduler_events = {
 doc_events = {
     "Salla Order": {
         "validate": "salla_client.events.salla_common.handle_salla_order_validate",
-        "before_save": "salla_client.events.salla_common.handle_salla_order_before_save",
+        "before_save": [
+            "salla_client.events.salla_common.handle_salla_order_before_save",
+            "salla_client.events.unified_integration.handle_salla_order_before_save"
+        ],
         "before_insert": "salla_client.events.salla_common.handle_salla_order_before_insert",
-        "before_update_after_submit": "salla_client.events.salla_common.handle_salla_order_before_update_after_submit",
+        "before_update_after_submit": [
+            "salla_client.events.salla_common.handle_salla_order_before_update_after_submit",
+            "salla_client.events.unified_integration.handle_salla_order_on_update_after_submit"
+        ],
         "on_cancel": "salla_client.events.salla_common.handle_salla_order_on_cancel",
-        "before_submit": "salla_client.events.salla_common.handle_salla_order_before_submit"
+        "before_submit": [
+            "salla_client.events.salla_common.handle_salla_order_before_submit",
+            "salla_client.events.unified_integration.handle_salla_order_before_submit"
+        ]
     },
     "Item": {
         "before_save": "salla_client.events.salla_common.handle_item_before_save",
         "on_update": "salla_client.events.salla_common.handle_item_on_update",
     },
     "Item Price": {
-        "before_save": "salla_client.events.salla_common.handle_item_price_before_save",
+        "before_save": "salla_client.events.salla_common.handle_item_price_before_save"
+    },
+    "Sales Order": {
+        "on_update_after_submit": "salla_client.events.unified_integration.handle_update_custom_status_sales_order"
     }
 }
+
+
 # user_data_fields = [
 # 	{
 # 		"doctype": "{doctype_1}",
