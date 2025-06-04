@@ -1,5 +1,5 @@
 # frappe -- installed via bench
-salla-common-lib>=0.0.1
+salla-common-lib>=0.0.2
 
 # External dependencies
 requests>=2.31.0
