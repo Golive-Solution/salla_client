@@ -3,7 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
-from salla_common.event import field_manager
+from salla_common_lib.event import field_manager
 
 class SallaDefaults(Document):
 	# begin: auto-generated types
