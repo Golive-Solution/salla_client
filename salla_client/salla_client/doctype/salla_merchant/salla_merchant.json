@@ -10,6 +10,7 @@
   "merchant",
   "merchant_name",
   "is_active",
+  "subscription_valid_to",
   "salla_requests"
  ],
  "fields": [
@@ -36,12 +37,18 @@
    "fieldtype": "Table",
    "label": "Salla Requests",
    "options": "Salla Merchant Orders Details"
+  },
+  {
+   "fieldname": "subscription_valid_to",
+   "fieldtype": "Date",
+   "label": "Subscription Valid To",
+   "read_only": 1
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-11 15:13:50.233898",
+ "modified": "2025-06-04 16:09:46.093933",
  "modified_by": "Administrator",
  "module": "Salla Client",
  "name": "Salla Merchant",

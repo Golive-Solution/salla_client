@@ -9,6 +9,7 @@ frappe.ui.form.on('Salla Sync Job', {
 			method: "salla_common.utils.update_product_balance_warehouse",
 			args: {
 				merchant_name: frm.doc.merchant, 
+				is_bulk: 1
 			}
 		});
 	}

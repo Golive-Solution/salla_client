@@ -45,7 +45,7 @@ def get_api_settings(feature=None):
 
     url = f"{settings.server_url}/api/resource/Received Salla Event To Salla"
 
-    return {"url": url, "headers": api_headers, "site": settings.site}
+    return {"url": url, "headers": api_headers, "site": settings.site, "settings": settings}
 
 
 # Allow Salla Monitor to set Merchants into salla client
@@ -75,6 +75,10 @@ def update_product_balance_warehouse(payload):
     print(payload)
     if not settings:
         return
+    
+    if payload.is_bulk and not settings.update_bulk_warehouse_balance:
+        return
+    
     data = {
         "site": settings["site"],
         "function": "update_product_balance_warehouse",
@@ -197,6 +201,7 @@ def update_merchant_requests(**args):
             should_add_new_row = False
 
     if should_add_new_row:
+        merchant.subscribtion_valid_to = valid_to
         merchant.append(
             "salla_requests",
             {
