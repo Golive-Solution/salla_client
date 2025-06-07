@@ -10,6 +10,7 @@
   "api_secret",
   "site",
   "update_product_balance_warehouse",
+  "update_bulk_warehouse_balance",
   "create_or_update_salla_item",
   "update_variant_qty",
   "update_salla_price"
@@ -66,12 +67,18 @@
    "fieldname": "update_salla_price",
    "fieldtype": "Check",
    "label": "Update Salla Price"
+  },
+  {
+   "default": "0",
+   "fieldname": "update_bulk_warehouse_balance",
+   "fieldtype": "Check",
+   "label": "Update Bulk Warehouse Balance"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-04-29 10:26:42.418315",
+ "modified": "2025-06-04 14:41:10.203711",
  "modified_by": "Administrator",
  "module": "Salla Client",
  "name": "Salla Client Settings",
