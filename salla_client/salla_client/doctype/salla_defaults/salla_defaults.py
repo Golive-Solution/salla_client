@@ -3,7 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
-from salla_common_lib.event import field_manager
+#from salla_common_lib.event import field_manager
 
 class SallaDefaults(Document):
 	# begin: auto-generated types
@@ -43,7 +43,7 @@ class SallaDefaults(Document):
 						f"The first tax in the template '{taxes_and_charges}' is not marked as 'Is this Tax included in Basic Rate?', "
 						"but 'Tax Included in Basic Rate' is enabled. Please update the tax template or disable the setting."
 					)
-	@frappe.whitelist()
-	def manage_custom_fields(self):
-		return field_manager.manage_custom_fields(self)	
+	# @frappe.whitelist()
+	# def manage_custom_fields(self):
+	# 	return field_manager.manage_custom_fields(self)	
 
