@@ -68,8 +68,8 @@ app_license = "mit"
 # ------------
 
 # before_install = "salla_client.install.before_install"
-after_install = "salla_client.install.after_install"
-after_migrate = "salla_client.install.after_install"
+#after_install = "salla_client.install.after_install"
+#after_migrate = "salla_client.install.after_install"
 
 # Uninstallation
 # ------------
