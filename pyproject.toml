@@ -17,4 +17,8 @@ build-backend = "flit_core.buildapi"
 
 # These dependencies are only installed when developer mode is enabled
 [tool.bench.dev-dependencies]
+salla-common-lib = ">=0.0.2"
+requests = ">=2.31.0"
+python-dateutil = ">=2.8.2"
+PyJWT = ">=2.8.0"
 # package_name = "~=1.1.0"
