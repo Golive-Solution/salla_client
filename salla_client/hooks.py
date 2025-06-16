@@ -239,10 +239,7 @@ doc_events = {
 # Authentication and authorization
 # --------------------------------
 doctype_js = {
-    "Salla Order":                   "public/js/salla_order.js",
-    "Salla Order Fulfillment":       "public/js/salla_order_fulfilment.js",
-    "Salla Shipment Method Mapping": "public/js/salla_shipment_method_mapping.js",
-    "Item":                          "public/js/item.js",
+    "Item":"public/js/item.js",
 }
 # auth_hooks = [
 # 	"salla_client.auth.validate"
