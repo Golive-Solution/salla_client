@@ -7,7 +7,7 @@ app_license = "mit"
 # required_apps = []
 
 # Includes in <head>
-# -------------------
+# ------------------
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/salla_client/css/salla_client.css"
