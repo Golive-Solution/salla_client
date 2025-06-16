@@ -6,8 +6,8 @@ from salla_common_lib import utils as salla_utils
 
 # Re-export whitelisted methods from salla_common_lib
 @frappe.whitelist()
-def update_product_balance_warehouse(merchant_name=None, item=None):
-    return salla_utils.update_product_balance_warehouse(merchant_name, item)
+def update_product_balance_warehouse(merchant_name=None, item=None, is_bulk=False):
+    return salla_utils.update_product_balance_warehouse(merchant_name, item, is_bulk)
 
 @frappe.whitelist()
 def update_variant_qty(item_variant, merchant_name, salla_item_info_name):
