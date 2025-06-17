@@ -269,6 +269,7 @@ fixtures = [
                     "Item-custom_product_type",
                     "Item-custom_send_item_to_salla",
                     "Item-custom_salla_variant_id",
+                    "Item-custom_failed_to_sync",
                     "Item-custom_update_pending_online_quantity",
                     "Item Barcode-custom_is_salla_barcode",
                 ],

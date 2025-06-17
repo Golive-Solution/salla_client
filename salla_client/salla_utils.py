@@ -406,3 +406,9 @@ def update_warehouse_balance_cron_format(cron_format):
     except Exception as e:
         frappe.log_error(f"Error updating cron format: {str(e)}")
         frappe.throw(f"Failed to update cron format: {str(e)}")
+
+def update_fields(doctype,docname, msg):
+    doc = frappe.get_doc(doctype, docname)
+    doc.custom_failed_to_sync = 1
+    doc.add_comment(comment_type='Comment', text=f"No 'Message' check response: {msg}")
+    doc.save()
