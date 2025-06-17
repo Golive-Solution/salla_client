@@ -410,5 +410,5 @@ def update_warehouse_balance_cron_format(cron_format):
 def update_fields(doctype,docname, msg):
     doc = frappe.get_doc(doctype, docname)
     doc.custom_failed_to_sync = 1
-    doc.add_comment(comment_type='Comment', text=f"No 'Message' check response: {msg}")
+    doc.add_comment(comment_type='Comment', text=f"{msg}")
     doc.save()
