@@ -1,6 +1,6 @@
 import frappe
 
-from salla_common.utils import update_product_balance_warehouse
+from salla_common_lib.utils import update_product_balance_warehouse
 
 
 def update_warehouse_balance():

@@ -76,7 +76,7 @@ def update_product_balance_warehouse(payload):
     if not settings:
         return
     
-    if payload.is_bulk and not settings.update_bulk_warehouse_balance:
+    if payload.get("is_bulk") and not settings.update_bulk_warehouse_balance:
         return
     
     data = {
@@ -406,3 +406,15 @@ def update_warehouse_balance_cron_format(cron_format):
     except Exception as e:
         frappe.log_error(f"Error updating cron format: {str(e)}")
         frappe.throw(f"Failed to update cron format: {str(e)}")
+
+
+@frappe.whitelist()
+def update_fields(doctype,docname, msg):
+    try:
+        doc = frappe.get_doc(doctype, docname)
+        doc.custom_failed_to_sync = 1
+        doc.add_comment(comment_type='Comment', text=f"{msg}")
+        doc.save()
+        return "Success !!"
+    except Exception as e:
+        return e

@@ -13,6 +13,7 @@
   "customer_group",
   "territory",
   "price_list",
+  "integration_type",
   "bundle_barcode_separator",
   "column_break_rwla",
   "pos_profile",
@@ -101,11 +102,18 @@
   {
    "fieldname": "column_break_rwla",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "integration_type",
+   "fieldtype": "Select",
+   "label": "Integration Type",
+   "options": "\nPOS Invoice\nSales Invoice\nSales Order",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-02 11:36:12.450119",
+ "modified": "2025-06-04 17:03:49.963021",
  "modified_by": "Administrator",
  "module": "Salla Client",
  "name": "Salla Defaults",

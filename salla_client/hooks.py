@@ -68,7 +68,8 @@ app_license = "mit"
 # ------------
 
 # before_install = "salla_client.install.before_install"
-# after_install = "salla_client.install.after_install"
+#after_install = "salla_client.install.after_install"
+#after_migrate = "salla_client.install.after_install"
 
 # Uninstallation
 # ------------
@@ -183,6 +184,36 @@ scheduler_events = {
 
 # User Data Protection
 # --------------------
+doc_events = {
+    "Salla Order": {
+        "validate": "salla_client.events.salla_common.handle_salla_order_validate",
+        "before_save": [
+            "salla_client.events.salla_common.handle_salla_order_before_save",
+            "salla_client.events.unified_integration.handle_salla_order_before_save"
+        ],
+        "before_insert": "salla_client.events.salla_common.handle_salla_order_before_insert",
+        "before_update_after_submit": [
+            "salla_client.events.salla_common.handle_salla_order_before_update_after_submit",
+            "salla_client.events.unified_integration.handle_salla_order_on_update_after_submit"
+        ],
+        "on_cancel": "salla_client.events.salla_common.handle_salla_order_on_cancel",
+        "before_submit": [
+            "salla_client.events.salla_common.handle_salla_order_before_submit",
+            "salla_client.events.unified_integration.handle_salla_order_before_submit"
+        ]
+    },
+    "Item": {
+        "before_save": "salla_client.events.salla_common.handle_item_before_save",
+        "on_update": "salla_client.events.salla_common.handle_item_on_update",
+    },
+    "Item Price": {
+        "before_save": "salla_client.events.salla_common.handle_item_price_before_save"
+    },
+    "Sales Order": {
+        "on_update_after_submit": "salla_client.events.unified_integration.handle_update_custom_status_sales_order"
+    }
+}
+
 
 # user_data_fields = [
 # 	{
@@ -207,7 +238,9 @@ scheduler_events = {
 
 # Authentication and authorization
 # --------------------------------
-
+doctype_js = {
+    "Item":"public/js/item.js",
+}
 # auth_hooks = [
 # 	"salla_client.auth.validate"
 # ]
@@ -236,6 +269,7 @@ fixtures = [
                     "Item-custom_product_type",
                     "Item-custom_send_item_to_salla",
                     "Item-custom_salla_variant_id",
+                    "Item-custom_failed_to_sync",
                     "Item-custom_update_pending_online_quantity",
                     "Item Barcode-custom_is_salla_barcode",
                 ],

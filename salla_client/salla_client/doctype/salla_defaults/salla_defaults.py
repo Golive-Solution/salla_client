@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
+from salla_common_lib.event import field_manager
 
 class SallaDefaults(Document):
 	# begin: auto-generated types
@@ -17,6 +18,7 @@ class SallaDefaults(Document):
 		cod_item: DF.Link | None
 		company: DF.Link | None
 		customer_group: DF.Link | None
+		integration_type: DF.Literal["", "POS Invoice", "Sales Invoice", "Sales Order"]
 		merchant: DF.Link
 		pos_profile: DF.Link | None
 		price_list: DF.Link
@@ -26,6 +28,7 @@ class SallaDefaults(Document):
 		taxe_included_in_basic_rate: DF.Check
 		territory: DF.Link | None
 	# end: auto-generated types
+
 	def validate(self):
 		if self.pos_profile and self.taxe_included_in_basic_rate:
 			taxes_and_charges = frappe.get_value("POS Profile", self.pos_profile, "taxes_and_charges")
@@ -40,5 +43,7 @@ class SallaDefaults(Document):
 						f"The first tax in the template '{taxes_and_charges}' is not marked as 'Is this Tax included in Basic Rate?', "
 						"but 'Tax Included in Basic Rate' is enabled. Please update the tax template or disable the setting."
 					)
-
+	@frappe.whitelist()
+	def manage_custom_fields(self):
+		return field_manager.manage_custom_fields(self)	
 

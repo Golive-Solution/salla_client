@@ -2,7 +2,16 @@ import frappe
 import datetime
 from croniter import croniter
 import re
+from salla_common_lib import utils as salla_utils
 
+# Re-export whitelisted methods from salla_common_lib
+@frappe.whitelist()
+def update_product_balance_warehouse(merchant_name=None, item=None, is_bulk=False):
+    return salla_utils.update_product_balance_warehouse(merchant_name, item, is_bulk)
+
+@frappe.whitelist()
+def update_variant_qty(item_variant, merchant_name, salla_item_info_name):
+    return salla_utils.update_variant_qty(item_variant, merchant_name, salla_item_info_name)
 
 def serialize_dates(obj):
     if isinstance(obj, dict):
@@ -15,7 +24,6 @@ def serialize_dates(obj):
         return obj.name
     else:
         return obj
-
 
 @frappe.whitelist()
 def test_cron_format(cron_format):
@@ -47,7 +55,6 @@ def test_cron_format(cron_format):
 
     except Exception as e:
         return {"valid": False, "message": str(e)}
-
 
 def validate_cron_format(cron_format):
     """
@@ -90,7 +97,6 @@ def validate_cron_format(cron_format):
 
     for i, (field, field_range) in enumerate(zip(fields, field_ranges)):
         validate_cron_field(field, field_names[i], field_range)
-
 
 def validate_cron_field(field, field_name, valid_range):
     """
