@@ -5,19 +5,13 @@ from frappe.utils import getdate, nowdate
 from salla_client.utils import serialize_dates, validate_cron_format
 
 
-def get_api_settings(feature=None):
+def get_api_settings():
     """
-    Get API settings if feature is enabled and validate all required fields exist.
-    Returns settings dict if successful or None if feature is disabled.
+    Get API settings and validate all required fields exist.
+    Returns settings dict if successful.
     Raises ValidationError if required settings are missing.
     """
-    # Early return if feature is not enabled
     settings = frappe.get_single("Salla Client Settings")
-    if feature:
-        feature_is_enabled = getattr(settings, feature, 0)
-        print(feature_is_enabled)
-        if not feature_is_enabled:
-            return None
 
     # Check all required fields
     required_fields = {
@@ -45,7 +39,25 @@ def get_api_settings(feature=None):
 
     url = f"{settings.server_url}/api/resource/Received Salla Event To Salla"
 
-    return {"url": url, "headers": api_headers, "site": settings.site, "settings": settings}
+    return {
+        "url": url,
+        "headers": api_headers,
+        "site": settings.site,
+        "settings": settings,
+    }
+
+
+def is_feature_enabled(feature):
+    """
+    Check if a specific feature is enabled in the settings.
+    Returns True if enabled, False otherwise.
+    """
+    if not feature:
+        return True
+        
+    settings = frappe.get_single("Salla Client Settings")
+    return bool(getattr(settings, feature, 0))
+
 
 
 # Allow Salla Monitor to set Merchants into salla client
@@ -69,16 +81,14 @@ def set_merchant_data(merchant_data):
 # The server will process the data and update client data
 @frappe.whitelist()
 def update_product_balance_warehouse(payload):
-    print("update_product_balance_warehouse ....")
-    settings = get_api_settings("update_product_balance_warehouse")
-    print(settings)
-    print(payload)
-    if not settings:
+    if not is_feature_enabled("update_product_balance_warehouse"):
         return
-    
+
+    settings = get_api_settings()
+
     if payload.get("is_bulk") and not settings.update_bulk_warehouse_balance:
         return
-    
+
     data = {
         "site": settings["site"],
         "function": "update_product_balance_warehouse",
@@ -105,11 +115,10 @@ def update_product_balance_warehouse(payload):
 
 ## Will be optimized later
 def create_or_update_salla_item(doc, merchant_name):
-    print("create salla Item ...")
-    settings = get_api_settings("create_or_update_salla_item")
-
-    if not settings:
+    if not is_feature_enabled("create_or_update_salla_item"):
         return
+    
+    settings = get_api_settings()
 
     doc_data = serialize_dates(doc)
 
@@ -142,10 +151,10 @@ def create_or_update_salla_item(doc, merchant_name):
 # We need a way to inform the client that the qty is updated on Salla
 @frappe.whitelist()
 def update_variant_qty(payload):
-    settings = get_api_settings("update_variant_qty")
-
-    if not settings:
+    if not is_feature_enabled("update_variant_qty"):
         return
+
+    settings = get_api_settings()
 
     serialized_payload = serialize_dates(payload)
 
@@ -233,10 +242,10 @@ def update_merchant_requests(**args):
 
 
 def update_salla_price(item_price):
-    settings = get_api_settings("update_salla_price")
-
-    if not settings:
+    if not is_feature_enabled("update_salla_price"):
         return
+
+    settings = get_api_settings()
 
     serialized_data = serialize_dates(item_price)
 
@@ -409,11 +418,11 @@ def update_warehouse_balance_cron_format(cron_format):
 
 
 @frappe.whitelist()
-def update_fields(doctype,docname, msg):
+def update_fields(doctype, docname, msg):
     try:
         doc = frappe.get_doc(doctype, docname)
         doc.custom_failed_to_sync = 1
-        doc.add_comment(comment_type='Comment', text=f"{msg}")
+        doc.add_comment(comment_type="Comment", text=f"{msg}")
         doc.save()
         return "Success !!"
     except Exception as e:
