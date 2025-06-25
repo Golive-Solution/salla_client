@@ -147,6 +147,37 @@ def create_or_update_salla_item(doc, merchant_name):
         )
         frappe.throw(_("Failed to send data to server. Please check logs."))
 
+@frappe.whitelist()
+def update_item_image(item_name, file_url, image_id, merchant):
+    settings = get_api_settings()
+
+    data = {
+        "item_name": item_name,
+        "file_url": file_url,
+        "image_id": image_id,
+        "merchant": merchant,
+    }
+
+    data = {
+        "site": settings["site"],
+        "data": str(data),
+        "function": "update_item_image",
+    }
+    try:
+
+        response = requests.post(
+            settings["url"], headers=settings["headers"], json=data
+        )
+
+        response.raise_for_status()
+
+        if response.ok:
+            frappe.msgprint(_("Sent to server"))
+
+    except requests.exceptions.HTTPError as e:
+        frappe.log_error(
+            f"Failed to update item image: {response.text}", "Salla API Error"
+        )
 
 # We need a way to inform the client that the qty is updated on Salla
 @frappe.whitelist()

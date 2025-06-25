@@ -2,12 +2,12 @@ frappe.ui.form.on("Item", {
   refresh: function (frm) {
     // Apply custom class to button in existing rows
     apply_custom_button_style(frm);
-
-    // // Apply custom class to button in new rows
-    // frm.fields_dict['custom_salla_item'].grid.wrapper.on('row-render', function() {
-    //     apply_custom_button_style(frm);
-    // });
+    update_image_button(frm)
   },
+
+  custom_salla_image_id: function (frm) {
+    update_image_button(frm);
+  }
 });
 
 function apply_custom_button_style(frm) {
@@ -61,3 +61,40 @@ frappe.ui.form.on("Salla Item Info", {
     }
   },
 });
+
+function update_image_button(frm) {
+  // Remove existing button
+  if (frm.custom_buttons && frm.custom_buttons['Update Image']) {
+    frm.remove_custom_button(__('Update Image'));
+  }
+
+  // Add button if the image ID exists
+  if (frm.doc.custom_salla_image_id) {
+    frm.add_custom_button(__('Update Image'), function () {
+      handle_salla_image_update(frm);
+    });
+  }
+}
+
+function handle_salla_image_update(frm) {
+  const { item_name, custom_product_image, custom_salla_image_id } = frm.doc;
+
+  const merchant = frm.doc.custom_salla_item[0].merchant
+
+  // Call backend method
+  frappe.call({
+    method: 'salla_client.salla_utils.update_item_image',
+    args: {
+      item_name: item_name,
+      file_url: custom_product_image,
+      image_id: custom_salla_image_id,
+      merchant: merchant,
+    },
+    callback: function (r) {
+      if (!r.exc) {
+        console.log(r);
+      }
+    },
+  });
+}
+
