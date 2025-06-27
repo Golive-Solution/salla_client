@@ -2,12 +2,12 @@ frappe.ui.form.on("Item", {
   refresh: function (frm) {
     // Apply custom class to button in existing rows
     apply_custom_button_style(frm);
-    update_image_button(frm)
+    // update_image_button(frm)
   },
 
-  custom_salla_image_id: function (frm) {
-    update_image_button(frm);
-  }
+  // custom_salla_image_id: function (frm) {
+  //   update_image_button(frm);
+  // }
 });
 
 function apply_custom_button_style(frm) {
