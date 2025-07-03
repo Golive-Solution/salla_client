@@ -203,7 +203,7 @@ doc_events = {
         ]
     },
     "Item": {
-        "validate": "salla_client.events.salla_common.handle_item_on_validate",
+        #"validate": "salla_client.events.salla_common.handle_item_on_validate",
         "before_save": "salla_client.events.salla_common.handle_item_before_save",
         "on_update": "salla_client.events.salla_common.handle_item_on_update",
     },
