@@ -1,4 +1,4 @@
-salla-common-lib>=0.0.11
+salla-common-lib>=0.0.12
 requests>=2.31.0
 python-dateutil>=2.8.2
 PyJWT>=2.8.0 
