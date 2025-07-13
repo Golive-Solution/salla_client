@@ -107,8 +107,8 @@ def update_product_balance_warehouse(payload):
 
     except requests.exceptions.HTTPError as e:
         frappe.log_error(
-            f"Failed to update product balance warehouse: {response.text}",
             "Salla API Error",
+            f"Failed to update product balance warehouse: {response.text}",
         )
         frappe.throw(_("Failed to send data to server. Please check logs."))
 
