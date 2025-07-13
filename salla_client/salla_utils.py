@@ -86,7 +86,7 @@ def update_product_balance_warehouse(payload):
 
     settings = get_api_settings()
 
-    if payload.get("is_bulk") and not settings.get("update_bulk_warehouse_balance", False):
+    if payload.get("is_bulk") and not settings["settings"].get("update_bulk_warehouse_balance", False):
         return
 
     data = {
