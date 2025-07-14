@@ -3,7 +3,7 @@ from frappe import _
 import requests
 from frappe.utils import getdate, nowdate
 from salla_client.utils import serialize_dates, validate_cron_format
-
+import time
 
 def get_api_settings():
     """
@@ -89,21 +89,26 @@ def update_product_balance_warehouse(payload):
     if payload.get("is_bulk") and not settings["settings"].get("update_bulk_warehouse_balance", False):
         return
 
-    data = {
-        "site": settings["site"],
-        "function": "update_product_balance_warehouse",
-        "data": str(payload),
-    }
+    batched_data = batch_payload(payload)
+
     try:
+        for batch in batched_data:
+            data = {
+                "site": settings["site"],
+                "function": "update_product_balance_warehouse",
+                "data": str(batch),  
+            }
 
-        response = requests.post(
-            settings["url"], headers=settings["headers"], json=data
-        )
+            response = requests.post(
+                settings["url"], headers=settings["headers"], json=data
+            )
 
-        response.raise_for_status()
+            response.raise_for_status()
+            # Sleep 1 second after each batch
+            time.sleep(1)
 
-        if response.ok:
-            frappe.msgprint(_("Sent to server"))
+        # Only print after all batches succeed
+        frappe.msgprint(_("Sent to server"))
 
     except requests.exceptions.HTTPError as e:
         frappe.log_error(
@@ -112,6 +117,29 @@ def update_product_balance_warehouse(payload):
         )
         frappe.throw(_("Failed to send data to server. Please check logs."))
 
+
+def batch_payload(original_payload, batch_size=100):
+    batched_payloads = []
+
+    for merchant_entry in original_payload['merchants']:
+        merchant_id = merchant_entry['merchant']
+        items = merchant_entry['items']
+
+        # Create batches of items
+        for i in range(0, len(items), batch_size):
+            batch_items = items[i:i+batch_size]
+
+            batched_payload = {
+                'merchants': [{
+                    'merchant': merchant_id,
+                    'items': batch_items
+                }],
+                'is_bulk': original_payload.get('is_bulk', False)
+            }
+
+            batched_payloads.append(batched_payload)
+
+    return batched_payloads
 
 ## Will be optimized later
 def create_or_update_salla_item(doc, merchant_name):
