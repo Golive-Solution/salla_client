@@ -448,32 +448,24 @@ def get_update_bulk_data_setting():
 
 
 @frappe.whitelist()
-def update_warehouse_balance_cron_format(cron_format):
+def update_warehouse_balance_time_to_execute(merchant,time_to_execute):
     """
     Update the cron format for warehouse balance scheduled job with validation
     """
     try:
-        # Validate cron format
-        validate_cron_format(cron_format)
-
-        # Update the cron format if validation passes
-        frappe.db.set_value(
-            "Scheduled Job Type",
-            "bulk_update_warehouse_balance.update_warehouse_balance",
-            "cron_format",
-            cron_format,
-        )
-
-        frappe.db.commit()
+        
+        salla_sync_job = frappe.get_doc("Salla Sync Job", {"merchant": merchant})
+        salla_sync_job.time_to_execute = time_to_execute
+        salla_sync_job.save()
 
         return {
             "success": True,
-            "message": f"Cron format updated successfully to: {cron_format}",
+            "message": f"Time To Execute updated successfully to: {time_to_execute}",
         }
 
     except Exception as e:
-        frappe.log_error(f"Error updating cron format: {str(e)}")
-        frappe.throw(f"Failed to update cron format: {str(e)}")
+        frappe.log_error(f"Error updating time_to_execute: {str(e)}")
+        frappe.throw(f"Failed to update time_to_execute: {str(e)}")
 
 
 @frappe.whitelist()

@@ -138,7 +138,7 @@ app_license = "mit"
 
 scheduler_events = {
     "cron": {
-        "0 0 * * *": [
+        "* * * * *": [
             "salla_client.tasks.bulk_update_warehouse_balance.update_warehouse_balance"
         ]
     }
