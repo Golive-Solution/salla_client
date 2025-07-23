@@ -1,9 +1,9 @@
 import frappe
 from frappe import _
 import requests
-from frappe.utils import getdate, nowdate
+from frappe.utils import getdate, nowdate, get_time
 from salla_client.utils import serialize_dates, validate_cron_format
-import time
+import datetime
 
 def get_api_settings():
     """
@@ -455,7 +455,7 @@ def update_warehouse_balance_time_to_execute(merchant,time_to_execute):
     try:
         
         salla_sync_job = frappe.get_doc("Salla Sync Job", {"merchant": merchant})
-        salla_sync_job.time_to_execute = time_to_execute
+        salla_sync_job.time_to_execute = datetime.time.fromisoformat(time_to_execute)
         salla_sync_job.save()
 
         return {

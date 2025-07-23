@@ -78,7 +78,7 @@
   },
   {
    "fieldname": "time_to_execute",
-   "fieldtype": "Data",
+   "fieldtype": "Time",
    "label": "Time To Execute",
    "read_only": 1
   }
