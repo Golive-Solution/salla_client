@@ -191,6 +191,7 @@ doc_events = {
             "salla_client.events.salla_common.handle_salla_order_before_save",
             "salla_client.events.unified_integration.handle_salla_order_before_save"
         ],
+        "on_update": "salla_client.events.salla_common.handle_salla_order_on_update",
         "before_insert": "salla_client.events.salla_common.handle_salla_order_before_insert",
         "before_update_after_submit": [
             "salla_client.events.salla_common.handle_salla_order_before_update_after_submit",
