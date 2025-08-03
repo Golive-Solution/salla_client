@@ -14,6 +14,8 @@ def handle_salla_order_before_insert(doc, method):
 def handle_salla_order_on_update(doc, method):
     if frappe.db.exists("Salla Order", doc.name):
         old_salla_order = doc.get_doc_before_save()
+        if not old_salla_order:
+            return
         # Convert item_code values to sets for comparison
         set_a = {item.item_code for item in old_salla_order.items}  # Use curly braces for a set
         set_b = {item.item_code for item in doc.items}
