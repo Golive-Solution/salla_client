@@ -227,6 +227,7 @@
   },
   {
    "fetch_from": "pos_profile.currency",
+   "fetch_if_empty": 1,
    "fieldname": "currency",
    "fieldtype": "Link",
    "label": "Currency",
