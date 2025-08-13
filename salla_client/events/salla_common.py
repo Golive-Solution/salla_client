@@ -24,9 +24,10 @@ def handle_salla_order_on_update(doc, method):
         deleted_items = list(set_a - set_b)
         print(deleted_items)
         for item in deleted_items:
-            item_doc = frappe.get_doc("Item", item)
-            item_doc.custom_update_pending_online_quantity = 1
-            item_doc.save()
+            if frappe.db.exists("Item", item):
+                item_doc = frappe.get_doc("Item", item)
+                item_doc.custom_update_pending_online_quantity = 1
+                item_doc.save()
 def handle_salla_order_before_update_after_submit(doc, method):
     return salla_order.before_update_after_submit(doc, method)
 
