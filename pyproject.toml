@@ -8,7 +8,7 @@ requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [
-    "salla-common-lib>=0.0.22",
+    "salla-common-lib>=0.0.23",
     "requests>=2.31.0",
     "python-dateutil>=2.8.2",
     "PyJWT>=2.8.0"
