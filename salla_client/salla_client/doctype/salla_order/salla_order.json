@@ -50,8 +50,7 @@
   "amended_from",
   "update_document",
   "is_store_delivery",
-  "connections_tab",
-  "received_event"
+  "connections_tab"
  ],
  "fields": [
   {
@@ -302,12 +301,6 @@
    "fieldname": "connections_tab",
    "fieldtype": "Tab Break",
    "label": "Connections"
-  },
-  {
-   "fieldname": "received_event",
-   "fieldtype": "Link",
-   "label": "Received Event",
-   "options": "Salla Received Events"
   },
   {
    "fieldname": "bank_reference",
