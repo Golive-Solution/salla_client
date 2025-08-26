@@ -146,3 +146,11 @@ def validate_cron_field(field, field_name, valid_range):
         return True
     except ValueError:
         frappe.throw(f"Invalid format in {field_name}: {field}")
+
+def get_last_subscription(subscription_list):
+    if not subscription_list:
+        return None
+    # Sort the subscription_list by valid_from in ascending order
+    sorted_list = sorted(subscription_list, key=lambda x: x.valid_from, reverse=True)
+    # The earliest subscription is the first one in the sorted list
+    return sorted_list[0]

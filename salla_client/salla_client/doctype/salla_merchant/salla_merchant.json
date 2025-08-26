@@ -40,7 +40,7 @@
   },
   {
    "fieldname": "subscription_valid_to",
-   "fieldtype": "Date",
+   "fieldtype": "Datetime",
    "label": "Subscription Valid To",
    "read_only": 1
   }
