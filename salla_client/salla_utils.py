@@ -348,14 +348,12 @@ def Update_salla_online_qty(doc):
 
 
 def update_online_qty(doc, parent_doc):
-    if frappe.db.exists("Salla Defaults", doc.merchant):
-        salla_default = frappe.get_doc("Salla Defaults", doc.merchant)
-    else:
+    if not frappe.db.exists("Salla Defaults", doc.merchant):
         frappe.throw(f"Merchant {doc.merchant} Defaults Not Exist.")
-    total_online_qty = 0
+
+    # ✅ Case 1: Normal Item (not a bundle)
     if not parent_doc.custom_is_bundle:
-        doc.update_online_qty = 0
-        # Check for normal Items
+        # Orders for the item itself
         salla_order_items = frappe.get_all(
             "Salla Order Item",
             filters=[
@@ -363,36 +361,51 @@ def update_online_qty(doc, parent_doc):
                 ["merchant", "=", doc.merchant],
                 ["order_status", "!=", "ملغي"],
                 ["item_code", "=", parent_doc.item_code],
+                ["is_bundle", "=", 0],
             ],
             fields=["qty"],
         )
-        print(f"salla_order_items: {len(salla_order_items) }")
-        if len(salla_order_items) > 0:
-            total_online_qty = sum(
-                salla_order_item.qty for salla_order_item in salla_order_items
-            )
-            print(f"Total online qty for normal items: {total_online_qty}")
+        direct_qty = sum(i.qty for i in salla_order_items) if salla_order_items else 0
 
-        # Check for Item in bundles
-        bundel_items = frappe.get_all(
-            "Salla Order Item",
-            filters=[
-                ["is_document_submitted", "=", 0],
-                ["merchant", "=", doc.merchant],
-                ["order_status", "!=", "ملغي"],
-                ["is_bundle", "=", 1],
-            ],
-            fields=["qty", "barcode", "merchant"],
+        # Orders for bundles that include this item
+        bundle_qty = 0
+        bundle_parents = frappe.get_all(
+            "Product Bundle",
+            filters={"disabled": 0},
+            fields=["name", "new_item_code"]
         )
-        if len(bundel_items) > 0:
-            for bundel_item in bundel_items:
-                barcodeList = bundel_item.barcode.split(
-                    salla_default.bundle_barcode_separator
-                )
-                for barcode in barcodeList:
-                    if "#" + barcode + "#" in parent_doc.custom_concatenated_barcode:
-                        total_online_qty = total_online_qty + bundel_item.qty
+        for bundle in bundle_parents:
+            bundle_doc = frappe.get_doc("Product Bundle", bundle.name)
+
+            # check if this item is part of the bundle
+            for bi in bundle_doc.items:
+                if bi.item_code == parent_doc.item_code:
+                    # get all unsubmitted orders for this bundle
+                    bundle_orders = frappe.get_all(
+                        "Salla Order Item",
+                        filters=[
+                            ["is_document_submitted", "=", 0],
+                            ["merchant", "=", doc.merchant],
+                            ["order_status", "!=", "ملغي"],
+                            ["item_code", "=", bundle.new_item_code],
+                            ["is_bundle", "=", 1],
+                        ],
+                        fields=["qty"],
+                    )
+                    if bundle_orders:
+                        bundle_qty += sum(o.qty for o in bundle_orders) * bi.qty
+
+        # Final total = direct orders + bundle orders
+        total_online_qty = direct_qty + bundle_qty
+        print(f"Updating {parent_doc.item_code} → direct: {direct_qty}, bundle: {bundle_qty}, total: {total_online_qty}")
+
+        # Set final value
         doc.pending_online_quantity = total_online_qty
+
+    # ✅ Case 2: Bundle Item itself → we don’t track qty on bundle
+    else:
+        print(f"Bundle {parent_doc.item_code} detected → setting pending_online_quantity = 0")
+        doc.pending_online_quantity = 0
 
 
 def setup_variant_data(doc, send_to_salla, merchant_name):

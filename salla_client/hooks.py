@@ -281,5 +281,14 @@ fixtures = [
                 ],
             ]
         },
+    },
+    {
+        'dt': 'Property Setter',
+        'filters': [
+            ['name', 'in', [
+                'Item-inventory_section-depends_on',
+            ]
+            ]
+        ]
     }
 ]
