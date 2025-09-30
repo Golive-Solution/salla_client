@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Effective Date: [Insert Date]
+Effective Date: [30-09-2025]
 
 Thank you for using the **Salla ↔ ERPNext Integration App** (“the App”).  
 Your privacy is important to us. This Privacy Policy explains how we handle data when you use the App.
