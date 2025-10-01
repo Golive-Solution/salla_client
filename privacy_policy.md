@@ -25,13 +25,14 @@ We use the collected data solely for:
 
 ## 3. Data Sharing
 - We **do not sell, rent, or share** your data with third parties.  
-- Data is transmitted only between **ERPNext** and **Salla** through secure API communication.  
+- Data is transmitted only between **ERPNext** and **Salla** through secure API communication.
+- Client App hosted in your **ERPNext** and **Server** app Hosted in a frappe site to synch data between two ends 
 
 ---
 
 ## 4. Data Security
 - All communication between ERPNext and Salla is performed using encrypted HTTPS protocols.  
-- API keys and credentials are stored securely in your ERPNext instance.  
+- API keys and credentials are stored securely in your ERPNext instance and in Server App as well.  
 - We recommend restricting access to authorized users only.  
 
 ---
