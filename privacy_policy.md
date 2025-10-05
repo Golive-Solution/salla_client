@@ -57,8 +57,8 @@ We may update this Privacy Policy from time to time. Any changes will be posted 
 ## 8. Contact
 If you have any questions or concerns about this Privacy Policy, please contact us at:  
 📧 support@golive-solutions.com
-KSA Team: +966530410136
-KSA Team: +966558089948
-KSA Team (whatsapp): +966548969236
-Egypt Team: +201050984045
+- KSA Team: +966530410136
+- KSA Team: +966558089948
+- KSA Team (whatsapp): +966548969236
+- Egypt Team: +201050984045
 
