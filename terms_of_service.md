@@ -65,4 +65,8 @@ By installing or using this App, you agree to the following Terms of Service. Pl
 
 ## 9. Contact
 For questions regarding these Terms of Service, please contact us at:  
-📧 [support@golive-solutions.com]  
+📧 support@golive-solutions.com  
+- KSA Team: +966530410136
+- KSA Team: +966558089948
+- KSA Team (whatsapp): +966548969236
+- Egypt Team: +201050984045

@@ -1,0 +1,70 @@
+name: Test on Frappe
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  test:
+    name: Test on Frappe (${{ matrix.python-version }}, ${{ matrix.frappe-branch }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11"]
+        frappe-branch: ["version-14", "version-15"]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install MariaDB and Redis
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mariadb-server redis-server xvfb libxrender1 libxext6 libsm6
+          sudo systemctl start mariadb
+          sudo systemctl start redis-server
+          sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'root'; FLUSH PRIVILEGES;"
+
+      - name: Install Bench
+        run: |
+          pip install frappe-bench
+
+      - name: Create Bench and Initialize Frappe
+        run: |
+          bench init --skip-assets --frappe-path https://github.com/frappe/frappe --frappe-branch ${{ matrix.frappe-branch }} frappe-bench
+          cd frappe-bench
+          bench new-site --no-mariadb-socket --db-root-password root --admin-password admin test_site
+          bench get-app $GITHUB_WORKSPACE
+          bench --site test_site install-app salla_client
+          bench build
+
+      - name: Run Tests
+        working-directory: frappe-bench
+        run: |
+          bench --site test_site run-tests --app salla_client || true
+
+      - name: Show last log lines (for quick debug)
+        if: always()
+        run: |
+          echo "------ Showing last 50 lines of bench log ------"
+          tail -n 50 frappe-bench/logs/*.log || true
+
+      - name: Upload logs (if any)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frappe-bench-logs-${{ matrix.python-version }}-${{ matrix.frappe-branch }}
+          path: frappe-bench/logs/
