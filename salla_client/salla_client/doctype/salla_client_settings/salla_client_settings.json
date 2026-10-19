@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "field:site",
  "creation": "2025-02-13 11:18:02.600706",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -9,6 +10,7 @@
   "api_key",
   "api_secret",
   "site",
+  "merchant",
   "update_product_balance_warehouse",
   "update_bulk_warehouse_balance",
   "create_or_update_salla_item",
@@ -26,14 +28,12 @@
   {
    "fieldname": "api_key",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "API Key",
    "reqd": 1
   },
   {
    "fieldname": "api_secret",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "API Secret",
    "reqd": 1
   },
@@ -42,7 +42,17 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Site",
-   "reqd": 1
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "merchant",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Merchant",
+   "options": "Salla Merchant",
+   "reqd": 1,
+   "unique": 1
   },
   {
    "default": "0",
@@ -76,12 +86,12 @@
   }
  ],
  "index_web_pages_for_search": 1,
- "issingle": 1,
  "links": [],
- "modified": "2025-06-04 14:41:10.203711",
+ "modified": "2026-10-19 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Salla Client",
  "name": "Salla Client Settings",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {

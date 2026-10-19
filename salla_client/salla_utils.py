@@ -6,13 +6,17 @@ from salla_client.utils import serialize_dates, validate_cron_format
 import datetime
 import time
 
-def get_api_settings():
+def get_api_settings(merchant):
     """
-    Get API settings and validate all required fields exist.
+    Get the merchant's API settings and validate all required fields exist.
     Returns settings dict if successful.
-    Raises ValidationError if required settings are missing.
+    Raises ValidationError if the merchant has no settings or required settings are missing.
     """
-    settings = frappe.get_single("Salla Client Settings")
+    settings_name = frappe.db.get_value("Salla Client Settings", {"merchant": merchant})
+    if not settings_name:
+        raise frappe.ValidationError(f"No Salla Client Settings found for merchant {merchant}.")
+
+    settings = frappe.get_doc("Salla Client Settings", settings_name)
 
     # Check all required fields
     required_fields = {
@@ -48,16 +52,17 @@ def get_api_settings():
     }
 
 
-def is_feature_enabled(feature):
+def is_feature_enabled(feature, merchant):
     """
-    Check if a specific feature is enabled in the settings.
+    Check if a specific feature is enabled in the merchant's settings.
     Returns True if enabled, False otherwise.
     """
     if not feature:
         return True
-        
-    settings = frappe.get_single("Salla Client Settings")
-    return bool(getattr(settings, feature, 0))
+
+    return bool(
+        frappe.db.get_value("Salla Client Settings", {"merchant": merchant}, feature)
+    )
 
 
 
@@ -82,18 +87,20 @@ def set_merchant_data(merchant_data):
 # The server will process the data and update client data
 @frappe.whitelist()
 def update_product_balance_warehouse(payload):
-    if not is_feature_enabled("update_product_balance_warehouse"):
-        return
-
-    settings = get_api_settings()
-
-    if payload.get("is_bulk") and not settings["settings"].get("update_bulk_warehouse_balance", False):
-        return
-
     batched_data = batch_payload(payload)
 
     try:
         for batch in batched_data:
+            # Each batch holds a single merchant, sent with that merchant's settings
+            merchant = batch["merchants"][0]["merchant"]
+            if not is_feature_enabled("update_product_balance_warehouse", merchant):
+                continue
+
+            settings = get_api_settings(merchant)
+
+            if payload.get("is_bulk") and not settings["settings"].get("update_bulk_warehouse_balance", False):
+                continue
+
             data = {
                 "site": settings["site"],
                 "function": "update_product_balance_warehouse",
@@ -144,10 +151,10 @@ def batch_payload(original_payload, batch_size=100):
 
 ## Will be optimized later
 def create_or_update_salla_item(doc, merchant_name):
-    if not is_feature_enabled("create_or_update_salla_item"):
+    if not is_feature_enabled("create_or_update_salla_item", merchant_name):
         return
-    
-    settings = get_api_settings()
+
+    settings = get_api_settings(merchant_name)
 
     doc_data = serialize_dates(doc)
 
@@ -178,7 +185,7 @@ def create_or_update_salla_item(doc, merchant_name):
 
 @frappe.whitelist()
 def update_item_image(item_name, file_url, image_id, merchant):
-    settings = get_api_settings()
+    settings = get_api_settings(merchant)
 
     data = {
         "item_name": item_name,
@@ -211,10 +218,11 @@ def update_item_image(item_name, file_url, image_id, merchant):
 # We need a way to inform the client that the qty is updated on Salla
 @frappe.whitelist()
 def update_variant_qty(payload):
-    if not is_feature_enabled("update_variant_qty"):
+    merchant = payload.get("merchant_name")
+    if not is_feature_enabled("update_variant_qty", merchant):
         return
 
-    settings = get_api_settings()
+    settings = get_api_settings(merchant)
 
     serialized_payload = serialize_dates(payload)
 
@@ -302,10 +310,11 @@ def update_merchant_requests(**args):
 
 
 def update_salla_price(item_price):
-    if not is_feature_enabled("update_salla_price"):
+    merchant = item_price.get("merchant")
+    if not is_feature_enabled("update_salla_price", merchant):
         return
 
-    settings = get_api_settings()
+    settings = get_api_settings(merchant)
 
     serialized_data = serialize_dates(item_price)
 
@@ -438,9 +447,9 @@ def has_barcode(doc):
 
 
 @frappe.whitelist()
-def get_update_bulk_data_setting():
+def get_update_bulk_data_setting(site):
     bulk_update_enabled = frappe.get_value(
-        "Salla Client Settings", None, "update_product_balance_warehouse"
+        "Salla Client Settings", site, "update_product_balance_warehouse"
     )
     salla_items = frappe.get_all(
         "Item",
