@@ -33,7 +33,7 @@ frappe.ui.form.on("Salla Item Info", {
       frappe.call({
         method: "salla_client.utils.update_product_balance_warehouse",
         args: {
-          merchant: row.merchant, // Assuming 'merchant' is a field in the child table
+          merchant_name: row.merchant, // Only send stock for this row's merchant
           item: frm.doc.name, // Assuming 'item' is a field in the child table
         },
         callback: function (r) {

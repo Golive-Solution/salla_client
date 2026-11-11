@@ -1,3 +1,4 @@
+from frappe.utils import get_datetime
 import frappe
 import datetime
 from croniter import croniter
@@ -151,6 +152,6 @@ def get_last_subscription(subscription_list):
     if not subscription_list:
         return None
     # Sort the subscription_list by valid_from in ascending order
-    sorted_list = sorted(subscription_list, key=lambda x: x.valid_from, reverse=True)
+    sorted_list = sorted(subscription_list, key=lambda x: get_datetime(x.valid_from), reverse=True)
     # The earliest subscription is the first one in the sorted list
     return sorted_list[0]

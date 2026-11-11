@@ -1,7 +1,7 @@
 import frappe
 from frappe import _
 import requests
-from frappe.utils import getdate, nowdate, get_time
+from frappe.utils import getdate, nowdate, get_time, get_datetime
 from salla_client.utils import serialize_dates, validate_cron_format
 import datetime
 import time
@@ -88,11 +88,19 @@ def set_merchant_data(merchant_data):
 @frappe.whitelist()
 def update_product_balance_warehouse(payload):
     batched_data = batch_payload(payload)
+    sent_batches = 0
+    failed_merchants = []
 
-    try:
-        for batch in batched_data:
-            # Each batch holds a single merchant, sent with that merchant's settings
-            merchant = batch["merchants"][0]["merchant"]
+    for batch in batched_data:
+        # Each batch holds a single merchant, sent with that merchant's settings
+        merchant = batch["merchants"][0]["merchant"]
+        if merchant in failed_merchants:
+            # This merchant already failed; skip its remaining batches
+            continue
+
+        # Isolate failures per merchant so one merchant's error
+        # doesn't stop the other merchants' stock from being sent
+        try:
             if not is_feature_enabled("update_product_balance_warehouse", merchant):
                 continue
 
@@ -104,7 +112,7 @@ def update_product_balance_warehouse(payload):
             data = {
                 "site": settings["site"],
                 "function": "update_product_balance_warehouse",
-                "data": str(batch),  
+                "data": str(batch),
             }
 
             response = requests.post(
@@ -112,18 +120,35 @@ def update_product_balance_warehouse(payload):
             )
 
             response.raise_for_status()
+            sent_batches += 1
             # Sleep 1 second after each batch
             time.sleep(1)
 
-        # Only print after all batches succeed
-        frappe.msgprint(_("Sent to server"))
+        except requests.exceptions.HTTPError as e:
+            failed_merchants.append(merchant)
+            frappe.log_error(
+                "Salla API Error",
+                f"Failed to update product balance warehouse for merchant {merchant}: {e.response.text}",
+            )
+        except frappe.ValidationError as e:
+            # e.g. missing Salla Client Settings / API keys for this merchant
+            failed_merchants.append(merchant)
+            frappe.log_error(
+                "Salla API Error",
+                f"Failed to update product balance warehouse for merchant {merchant}: {e}",
+            )
 
-    except requests.exceptions.HTTPError as e:
-        frappe.log_error(
-            "Salla API Error",
-            f"Failed to update product balance warehouse: {response.text}",
+    if failed_merchants:
+        frappe.throw(
+            _("Failed to send stock to server for merchant(s): {0}. Please check logs.").format(
+                ", ".join(failed_merchants)
+            )
         )
-        frappe.throw(_("Failed to send data to server. Please check logs."))
+
+    if sent_batches:
+        frappe.msgprint(_("Sent to server"))
+    else:
+        frappe.msgprint(_("No stock to send"))
 
 
 def batch_payload(original_payload, batch_size=100):
@@ -284,8 +309,10 @@ def update_merchant_requests(**args):
             {
                 "plan_type": args_dict.plan_type,
                 "created_on": args_dict.created_on,
-                "valid_from": valid_from,
-                "valid_to": valid_to,
+                # Datetime fields: store datetimes, not dates, so they sort/compare
+                # with existing rows (date vs datetime raises TypeError on save)
+                "valid_from": get_datetime(args_dict.valid_from),
+                "valid_to": get_datetime(args_dict.valid_to),
                 "number_of_requests": args_dict.number_of_requests,
                 "consumed_requests": args_dict.consumed_requests,
                 "salla_orders": args_dict.salla_orders,
