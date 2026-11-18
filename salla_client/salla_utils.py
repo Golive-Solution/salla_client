@@ -200,16 +200,9 @@ def create_or_update_salla_item(doc, merchant_name):
         if response.ok:
             frappe.msgprint(_("Sent to server"))
             frappe.db.set_value("Item", doc_data["name"], "custom_is_synced", 1)
-            frappe.db.set_value(
-                "Salla Item Info",
-                {
-                    "parenttype": "Item",
-                    "parent": doc_data["name"],
-                    "merchant": merchant_name,
-                },
-                "is_synced",
-                1,
-            )
+            # The merchant's row is marked synced by set_merchant_salla_ids once the
+            # server has synced it with Salla; if that sync fails the item is resent
+            # on the next save instead of being skipped for this merchant forever.
             frappe.db.commit()
 
     except requests.exceptions.HTTPError as e:
