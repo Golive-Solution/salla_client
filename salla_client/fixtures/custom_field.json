@@ -494,7 +494,7 @@
   "columns": 0,
   "default": null,
   "depends_on": "variant_of",
-  "description": null,
+  "description": "Deprecated: the ID differs per merchant. Use Salla Variant ID on each Salla Item row.",
   "docstatus": 0,
   "doctype": "Custom Field",
   "dt": "Item",
@@ -518,7 +518,7 @@
   "label": "Salla Variant ID",
   "length": 0,
   "mandatory_depends_on": null,
-  "modified": "2024-11-04 16:35:16.084563",
+  "modified": "2026-11-18 12:00:00.000000",
   "module": "Salla Connector",
   "name": "Item-custom_salla_variant_id",
   "no_copy": 0,
@@ -536,7 +536,7 @@
   "search_index": 0,
   "sort_options": 0,
   "translatable": 1,
-  "unique": 1,
+  "unique": 0,
   "width": null
  },
  {

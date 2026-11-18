@@ -11,7 +11,12 @@
   "pending_online_quantity",
   "last_update",
   "update_product_qty",
-  "is_unlimited_qty"
+  "is_unlimited_qty",
+  "salla_ids_section",
+  "salla_variant_id",
+  "salla_image_id",
+  "column_break_salla_ids",
+  "is_synced"
  ],
  "fields": [
   {
@@ -54,12 +59,44 @@
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Is Unlimited Qty"
+  },
+  {
+   "fieldname": "salla_ids_section",
+   "fieldtype": "Section Break",
+   "label": "Salla IDs"
+  },
+  {
+   "description": "Product / variant ID of this item in this merchant's Salla store",
+   "fieldname": "salla_variant_id",
+   "fieldtype": "Data",
+   "label": "Salla Variant ID",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "salla_image_id",
+   "fieldtype": "Data",
+   "label": "Salla Image ID",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_salla_ids",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_synced",
+   "fieldtype": "Check",
+   "label": "Is Synced",
+   "no_copy": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-05-26 00:24:51.779429",
+ "modified": "2026-11-18 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Salla Client",
  "name": "Salla Item Info",

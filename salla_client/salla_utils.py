@@ -200,6 +200,9 @@ def create_or_update_salla_item(doc, merchant_name):
         if response.ok:
             frappe.msgprint(_("Sent to server"))
             frappe.db.set_value("Item", doc_data["name"], "custom_is_synced", 1)
+            # The merchant's row is marked synced by set_merchant_salla_ids once the
+            # server has synced it with Salla; if that sync fails the item is resent
+            # on the next save instead of being skipped for this merchant forever.
             frappe.db.commit()
 
     except requests.exceptions.HTTPError as e:
@@ -207,6 +210,47 @@ def create_or_update_salla_item(doc, merchant_name):
             f"Failed to create or update salla item: {response.text}", "Salla API Error"
         )
         frappe.throw(_("Failed to send data to server. Please check logs."))
+
+@frappe.whitelist(methods=["POST"])
+def set_merchant_salla_ids(item, merchant, variant_id=None, image_id=None):
+    """Called by Salla Server after a sync to store the IDs Salla returned for this
+    merchant's store on that merchant's Salla Item Info row of the item."""
+    frappe.has_permission("Item", "write", item, throw=True)
+
+    row = frappe.db.get_value(
+        "Salla Item Info",
+        {"parenttype": "Item", "parent": item, "merchant": merchant},
+        "name",
+    )
+    if not row:
+        frappe.throw(
+            _("Item {0} is not linked to merchant {1}").format(item, merchant),
+            frappe.DoesNotExistError,
+        )
+
+    values = {"is_synced": 1}
+    if variant_id:
+        values["salla_variant_id"] = variant_id
+    if image_id:
+        values["salla_image_id"] = image_id
+    frappe.db.set_value("Salla Item Info", row, values)
+
+    # Keep the item-level fields filled while older code still reads them, but only
+    # when the item has one merchant; otherwise there is no single correct ID.
+    merchant_count = frappe.db.count(
+        "Salla Item Info", {"parenttype": "Item", "parent": item}
+    )
+    if merchant_count == 1:
+        item_values = {}
+        if variant_id:
+            item_values["custom_salla_variant_id"] = variant_id
+        if image_id:
+            item_values["custom_salla_image_id"] = image_id
+        if item_values:
+            frappe.db.set_value("Item", item, item_values)
+
+    return {"item": item, "merchant": merchant, "row": row}
+
 
 @frappe.whitelist()
 def update_item_image(item_name, file_url, image_id, merchant):
