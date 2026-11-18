@@ -62,14 +62,28 @@ frappe.ui.form.on("Salla Item Info", {
   },
 });
 
+// Rows whose merchant has a Salla image ID. Each merchant's store has its own
+// image ID; the item-level field is only trusted when there is a single merchant.
+function get_salla_image_rows(frm) {
+  const rows = frm.doc.custom_salla_item || [];
+  return rows
+    .map((row) => ({
+      merchant: row.merchant,
+      image_id:
+        row.salla_image_id ||
+        (rows.length === 1 ? frm.doc.custom_salla_image_id : null),
+    }))
+    .filter((row) => row.merchant && row.image_id);
+}
+
 function update_image_button(frm) {
   // Remove existing button
-  if (frm.custom_buttons && frm.custom_buttons['Update Image']) {
+  if (frm.custom_buttons && frm.custom_buttons[__('Update Image')]) {
     frm.remove_custom_button(__('Update Image'));
   }
 
-  // Add button if the image ID exists
-  if (frm.doc.custom_salla_image_id) {
+  // Add button if any merchant has an image ID
+  if (get_salla_image_rows(frm).length) {
     frm.add_custom_button(__('Update Image'), function () {
       handle_salla_image_update(frm);
     });
@@ -77,18 +91,40 @@ function update_image_button(frm) {
 }
 
 function handle_salla_image_update(frm) {
-  const { item_name, custom_product_image, custom_salla_image_id } = frm.doc;
+  const rows = get_salla_image_rows(frm);
 
-  const merchant = frm.doc.custom_salla_item[0].merchant
+  if (rows.length === 1) {
+    send_salla_image_update(frm, rows[0]);
+    return;
+  }
 
-  // Call backend method
+  frappe.prompt(
+    {
+      fieldname: 'merchant',
+      fieldtype: 'Select',
+      label: __('Merchant'),
+      options: rows.map((row) => row.merchant),
+      reqd: 1,
+    },
+    (values) => {
+      send_salla_image_update(
+        frm,
+        rows.find((row) => row.merchant === values.merchant)
+      );
+    },
+    __('Update Image For Merchant'),
+    __('Update')
+  );
+}
+
+function send_salla_image_update(frm, row) {
   frappe.call({
     method: 'salla_client.salla_utils.update_item_image',
     args: {
-      item_name: item_name,
-      file_url: custom_product_image,
-      image_id: custom_salla_image_id,
-      merchant: merchant,
+      item_name: frm.doc.item_name,
+      file_url: frm.doc.custom_product_image,
+      image_id: row.image_id,
+      merchant: row.merchant,
     },
     callback: function (r) {
       if (!r.exc) {
@@ -97,4 +133,3 @@ function handle_salla_image_update(frm) {
     },
   });
 }
-
